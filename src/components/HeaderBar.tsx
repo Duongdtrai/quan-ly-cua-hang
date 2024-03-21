@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 const pages = [
   { name: "Home", path: "/" },
   { name: "Products", path: "/products" },
+  { name: "Orders", path: "/orders" },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
