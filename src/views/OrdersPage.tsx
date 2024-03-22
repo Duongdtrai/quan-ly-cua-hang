@@ -29,7 +29,7 @@ const OrdersPage = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await axios.get('http://localhost:8080/api/v1/orders');
+      const response = await axios.get('http://54.199.68.197:8081/api/v1/orders');
       setItems(response.data.data);
       setDisplayOrders(response.data.data.slice(0, itemsPerPage));
     }
@@ -59,7 +59,7 @@ const OrdersPage = () => {
 
   const handleDeleteItem = async (id: number) => {
     setItems(items.filter((item: Order) => item.id !== id));
-    await axios.delete(`http://localhost:8080/api/v1/orders/${id}`);
+    await axios.delete(`http://54.199.68.197:8081/api/v1/orders/${id}`);
     setShowConfirmDialog(false);
   };
 
