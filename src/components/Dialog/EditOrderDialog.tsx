@@ -48,7 +48,7 @@ const EditOrderDialolg = (props: any) => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        "http://localhost:8080/api/v1/suppliers"
+        "http://54.199.68.197:8081/api/v1/suppliers"
       );
       setListSupplier(response.data.data);
     };
@@ -74,21 +74,18 @@ const EditOrderDialolg = (props: any) => {
   };
 
   const handleUpdateItem = (data: OrderProduct, id: number) => {
-    setAddProductDialog(false);
-    if (id) {
+    if (data?.product && data?.quantity && data?.tax) {
+      setAddProductDialog(false);
       const newOrderProucts = orderData.products.map((item: OrderProduct) => {
-        if (item.id === id) return data;
+        if (item.id === id || item.product.id === data.product.id) return data;
         return item;
       });
       setOrderData({
         ...orderData,
-        products: newOrderProucts,
+        products: id || newOrderProucts.length > 0 ? newOrderProucts : [...orderData.products, data],
       });
     } else {
-      setOrderData({
-        ...orderData,
-        products: [...orderData.products, data],
-      });
+      alert("Vui long dien day du thong tin");
     }
   };
 
@@ -116,12 +113,12 @@ const EditOrderDialolg = (props: any) => {
     });
 
     if (order?.id) {
-      await axios.put(`http://localhost:8080/api/v1/orders/${order.id}`, {
+      await axios.put(`http://54.199.68.197:8081/api/v1/orders/${order.id}`, {
         supplier: orderData.supplier,
         products: newData,
       });
     } else {
-      await axios.post("http://localhost:8080/api/v1/orders", {
+      await axios.post("http://54.199.68.197:8081/api/v1/orders", {
         ...orderData,
         products: newData,
       });
