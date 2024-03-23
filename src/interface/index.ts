@@ -30,12 +30,14 @@ export interface Product {
 }
 
 export interface Supplier {
-    address: string;
-    createdAt: string;
+    createdAt?: string | undefined;
     id: number;
-    isDeleted: boolean;
-    name: string;
-    phoneNumber: string;
+    name: string | undefined;
+    email: string | undefined;
+    phoneNumber: string | undefined;
+    address: string | undefined;
+    note: string | undefined;
+    [key: string]: unknown;
 }
 
 export interface OrderProduct {

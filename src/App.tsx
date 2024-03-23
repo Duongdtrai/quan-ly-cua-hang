@@ -6,19 +6,23 @@ import enTranslations from "@shopify/polaris/locales/en.json";
 import HeaderBar from "./components/HeaderBar";
 import AddProduct from "./views/product/add";
 import EditProduct from "./views/product/edit";
+import CustomSkeletonPage from "./components/Skeleton/skeleton-page";
 
 const Home = React.lazy(() => import("./views/Home"));
 const ProductPage = React.lazy(() => import("./views/product"));
 const OrdersPage = React.lazy(() => import("./views/OrdersPage"));
+const SupplierPage = React.lazy(() => import("./views/supplier"));
+
 function App() {
   return (
     <AppProvider i18n={enTranslations}>
       <Router>
         <div>
           <HeaderBar />
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<CustomSkeletonPage/>}>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/suppliers" element={<SupplierPage/>}/>
               <Route path="/products" element={<ProductPage />} />
               <Route path="/product/add" element={<AddProduct />} />
               <Route path="/product/:id" element={<EditProduct />} />
