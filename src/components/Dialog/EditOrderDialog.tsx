@@ -18,6 +18,7 @@ import {
   MenuItem,
   IconButton,
   Icon,
+  Box,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -29,6 +30,7 @@ import { Order, OrderProduct, Product, Supplier } from "../../interface";
 const EditOrderDialolg = (props: any) => {
   const { open, setOpen, order } = props;
 
+  const [note, setNote] = useState<string>("");
   const [tax, setTax] = useState(0.1);
   const [listSupplier, setListSupplier] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -73,6 +75,15 @@ const EditOrderDialolg = (props: any) => {
     return result;
   };
 
+  const handleChangeNote = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const inputValue = e.target.value;
+    if (inputValue.length <= 500) {
+      setNote(inputValue);
+    }
+  };
+
   const handleUpdateItem = (data: OrderProduct, id: number) => {
     if (data?.product && data?.quantity && data?.tax) {
       setAddProductDialog(false);
@@ -82,7 +93,10 @@ const EditOrderDialolg = (props: any) => {
       });
       setOrderData({
         ...orderData,
-        products: id || newOrderProucts.length > 0 ? newOrderProucts : [...orderData.products, data],
+        products:
+          id || newOrderProucts.length > 0
+            ? newOrderProucts
+            : [...orderData.products, data],
       });
     } else {
       alert("Vui long dien day du thong tin");
@@ -146,152 +160,194 @@ const EditOrderDialolg = (props: any) => {
             <Icon color="error">x</Icon>
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <DialogContentText style={{ marginBottom: "20px" }}>
-            Thông tin cơ bản:
-          </DialogContentText>
-          <Grid container spacing={2}>
-            <Grid container item spacing={2} xs={9}>
-              <Grid item xs={6}>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="orderDate"
-                  label="Ngày tạo đơn"
-                  type="date"
-                  value={moment(orderData.createdAt).format("YYYY-MM-DD")}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  fullWidth
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Select
-                  style={{ marginTop: "8px" }}
-                  labelId="supplierName-label"
-                  id="supplierName"
-                  value={orderData.supplier.id}
-                  onChange={(e) =>
-                    setOrderData({
-                      ...orderData,
-                      supplier: {
-                        ...orderData.supplier,
-                        id: e.target.value,
-                      },
-                    })
-                  }
-                  fullWidth
-                  displayEmpty
-                  defaultOpen
-                >
-                  <MenuItem value="" disabled>
-                    <span>Chọn nhà cung cấp</span>
-                  </MenuItem>
-                  {listSupplier.map((item: Supplier, index: number) => (
-                    <MenuItem value={item.id} key={index}>
-                      {item.name}
+        <Box component="form" onSubmit={handleSubmit}>
+          <DialogContent>
+            <DialogContentText style={{ marginBottom: "20px" }}>
+              Thông tin cơ bản:
+            </DialogContentText>
+            <Grid container spacing={2}>
+              <Grid container item spacing={2} xs={9}>
+                <Grid item xs={4}>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="order-date"
+                    label="Ngày tạo đơn"
+                    type="date"
+                    value={moment(orderData.createdAt).format("YYYY-MM-DD")}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    fullWidth
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <Select
+                    style={{ marginTop: "8px" }}
+                    labelId="supplierName-label"
+                    id="supplier-name"
+                    value={orderData.supplier.id}
+                    onChange={(e) =>
+                      setOrderData({
+                        ...orderData,
+                        supplier: {
+                          ...orderData.supplier,
+                          id: e.target.value,
+                        },
+                      })
+                    }
+                    fullWidth
+                    displayEmpty
+                    defaultOpen
+                  >
+                    <MenuItem value="" disabled>
+                      <span>Chọn nhà cung cấp</span>
                     </MenuItem>
-                  ))}
-                </Select>
+                    {listSupplier.map((item: Supplier, index: number) => (
+                      <MenuItem value={item.id} key={index}>
+                        {item.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    margin="dense"
+                    label="Mã vận đơn"
+                    id="order code"
+                    value={"1221"}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    fullWidth
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    margin="dense"
+                    label="Ghi chú"
+                    id="note"
+                    value={note}
+                    onChange={(e) => handleChangeNote(e)}
+                    multiline
+                    fullWidth
+                    inputProps={{ maxLength: 500 }}
+                    helperText={`${note.length}/500`}
+                    FormHelperTextProps={{
+                      style: {
+                        fontSize: "14px",
+                        textAlign: "left",
+                        position: "absolute",
+                        bottom: -25,
+                        left: -14,
+                        zIndex: "1",
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <DialogContentText style={{ margin: "10px 0px" }}>
+                    Danh sách hàng hoá:
+                  </DialogContentText>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setAddProductDialog(true);
+                      setOrderProduct({});
+                    }}
+                  >
+                    Thêm mặt hàng
+                  </Button>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Tên mặt hàng</TableCell>
+                          <TableCell>Số lượng</TableCell>
+                          <TableCell>Loại</TableCell>
+                          <TableCell>Giá</TableCell>
+                          <TableCell>Tổng tiền</TableCell>
+                          <TableCell>Thao tác</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {orderData.products.map(
+                          (item: OrderProduct, index: number) => (
+                            <TableRow key={index}>
+                              <TableCell>{item.product.name}</TableCell>
+                              <TableCell>{item.quantity}</TableCell>
+                              <TableCell>
+                                {item.product.category.name}
+                              </TableCell>
+                              <TableCell>{item.product.price}</TableCell>
+                              <TableCell>
+                                {item.product.price * item.quantity}
+                              </TableCell>
+                              <TableCell>
+                                <IconButton
+                                  onClick={() => handleClickEdit(item)}
+                                >
+                                  <EditIcon color="primary" />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => handleClickDelete(item)}
+                                >
+                                  <DeleteIcon color="error" />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <DialogContentText style={{ marginBottom: "10px" }}>
-                  Danh sách hàng hoá:
-                </DialogContentText>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    setAddProductDialog(true);
-                    setOrderProduct({})
-                  }}
-                >
-                  Thêm mặt hàng
-                </Button>
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Tên mặt hàng</TableCell>
-                        <TableCell>Số lượng</TableCell>
-                        <TableCell>Loại</TableCell>
-                        <TableCell>Giá</TableCell>
-                        <TableCell>Tổng tiền</TableCell>
-                        <TableCell>Thao tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {orderData.products.map(
-                        (item: OrderProduct, index: number) => (
-                          <TableRow key={index}>
-                            <TableCell>{item.product.name}</TableCell>
-                            <TableCell>{item.quantity}</TableCell>
-                            <TableCell>{item.product.category.name}</TableCell>
-                            <TableCell>{item.product.price}</TableCell>
-                            <TableCell>
-                              {item.product.price * item.quantity}
-                            </TableCell>
-                            <TableCell>
-                              <IconButton onClick={() => handleClickEdit(item)}>
-                                <EditIcon color="primary" />
-                              </IconButton>
-                              <IconButton
-                                onClick={() => handleClickDelete(item)}
-                              >
-                                <DeleteIcon color="error" />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+              <Grid container item xs={3}>
+                <DialogContent>
+                  <DialogContentText style={{ marginBottom: "10px" }}>
+                    Thông tin số tiền:
+                  </DialogContentText>
+                  <TextField
+                    margin="dense"
+                    id="total"
+                    label="Tổng tiền hàng hoá"
+                    value={totalPrice}
+                    disabled
+                    fullWidth
+                  />
+                  <TextField
+                    margin="dense"
+                    id="tax"
+                    label="Thuế"
+                    value={tax * totalPrice}
+                    fullWidth
+                  />
+                  <TextField
+                    margin="dense"
+                    id="grand-total"
+                    label="Tổng hóa đơn"
+                    value={tax * totalPrice + totalPrice}
+                    disabled
+                    fullWidth
+                  />
+                </DialogContent>
               </Grid>
             </Grid>
-            <Grid container item xs={3}>
-              <DialogContent>
-                <DialogContentText style={{ marginBottom: "10px" }}>
-                  Thông tin số tiền:
-                </DialogContentText>
-                <TextField
-                  margin="dense"
-                  id="total"
-                  label="Tổng tiền hàng hoá"
-                  value={totalPrice}
-                  disabled
-                  fullWidth
-                />
-                <TextField
-                  margin="dense"
-                  id="tax"
-                  label="Thuế"
-                  value={tax * totalPrice}
-                  fullWidth
-                />
-                <TextField
-                  margin="dense"
-                  id="grandTotal"
-                  label="Tổng hóa đơn"
-                  value={tax * totalPrice + totalPrice}
-                  disabled
-                  fullWidth
-                />
-              </DialogContent>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions
-          style={{ alignItems: "center", justifyContent: "center" }}
-        >
-          <Button color="error" onClick={handleClose}>
-            Hủy
-          </Button>
-          <Button color="primary" onClick={handleSubmit}>
-            Lưu
-          </Button>
-        </DialogActions>
+          </DialogContent>
+          <DialogActions
+            style={{ alignItems: "center", justifyContent: "center" }}
+          >
+            <Button color="error" onClick={handleClose}>
+              Hủy
+            </Button>
+            <Button color="primary" type="submit">
+              Lưu
+            </Button>
+          </DialogActions>
+        </Box>
       </Dialog>
     </div>
   );
