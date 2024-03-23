@@ -1,21 +1,9 @@
-import {
-  Box,
-  Button,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import React, { useEffect, useState } from "react";
-import EditOrderDialolg from "../components/Dialog/EditOrderDialog";
+import { Page, Card, DataTable, Button, ButtonGroup } from "@shopify/polaris";
 import axios from "axios";
 import moment from "moment";
 import { Order } from "../interface";
+import EditOrderDialog from "../components/Dialog/EditOrderDialog";
 import ConfirmationDialog from "../components/Dialog/ConfirmationDialog";
 
 const OrdersPage = () => {
@@ -29,12 +17,14 @@ const OrdersPage = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await axios.get('http://54.199.68.197:8081/api/v1/orders');
+      const response = await axios.get(
+        "http://54.199.68.197:8081/api/v1/orders"
+      );
       setItems(response.data.data);
       setDisplayOrders(response.data.data.slice(0, itemsPerPage));
-    }
+    };
     getData();
-  }, [open, page])
+  }, [open, page]);
 
   const handleAddItem = () => {
     setOrder({});
@@ -49,13 +39,15 @@ const OrdersPage = () => {
   const handleChangePage = (event: number) => {
     const newPage = page + event;
     setPage(newPage);
-    setDisplayOrders(items.slice(page * itemsPerPage, (page + 1) * itemsPerPage ));
-  }
+    setDisplayOrders(
+      items.slice(newPage * itemsPerPage, (newPage + 1) * itemsPerPage)
+    );
+  };
 
   const handleClickDelete = (item: Order) => {
     setOrder(item);
     setShowConfirmDialog(true);
-  }
+  };
 
   const handleDeleteItem = async (id: number) => {
     setItems(items.filter((item: Order) => item.id !== id));
@@ -64,69 +56,69 @@ const OrdersPage = () => {
   };
 
   return (
-    <div style={{ margin: "20px" }}>
-      {showConfirmDialog &&
-        <ConfirmationDialog 
+    <Page title="Danh sách đơn hàng">
+      <Card>
+        <Button variant="primary" onClick={handleAddItem} id="create-order-btn">
+          Tạo đơn hàng
+        </Button>
+        <DataTable
+          columnContentTypes={["text", "text", "text", "text", "text"]}
+          headings={[
+            <div style={{textAlign: 'center'}}>STT</div>,
+            <div style={{textAlign: 'center'}}>Mã đơn hàng</div>,
+            <div style={{textAlign: 'left'}}>Ngày tạo</div>,
+            <div style={{textAlign: 'left'}}>Nhà cung cấp</div>,
+            <div style={{textAlign: 'center'}}>Trạng thái</div>,
+            "",
+            "",
+          ]}
+          rows={displayOrders.map((item: Order, index: number) => [
+            <div style={{textAlign: 'center'}}>{page * itemsPerPage + index + 1}</div>,
+            <div style={{textAlign: 'center'}}>{item.id}</div>,
+            moment(item.createdAt).format("YYYY-MM-DD"),
+            item.supplier.name,
+            item.status ? "Đã thanh toán" : "Chưa thanh toán",
+            <Button onClick={() => handleEditItem(item)}>Chỉnh sửa</Button>,
+            <Button tone="critical" onClick={() => handleClickDelete(item)}>
+              Xóa
+            </Button>,
+          ])}
+        />
+      </Card>
+      <div
+        style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
+      >
+        <ButtonGroup>
+          <Button disabled={page === 0} onClick={() => handleChangePage(-1)} id="previous-page">
+            Trang trước
+          </Button>
+          <Button
+            disabled={items.length < itemsPerPage * (page + 1)}
+            onClick={() => handleChangePage(1)}
+            id="next-page"
+          >
+            Trang tiếp theo
+          </Button>
+        </ButtonGroup>
+      </div>
+      {showConfirmDialog && (
+        <ConfirmationDialog
           open={showConfirmDialog}
           setOpen={setShowConfirmDialog}
           item={order}
           handleConfirm={handleDeleteItem}
           id="confirm-dialog"
         />
-      }
-      <Button variant="contained" onClick={handleAddItem} id="create-order-btn">
-        Tạo đơn
-      </Button>
-      {open && <EditOrderDialolg order={order} open={open} setOpen={setOpen} id="edit-dialog"/>}
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>STT</TableCell>
-              <TableCell>Mã đơn hàng</TableCell>
-              <TableCell>Ngày tạo</TableCell>
-              <TableCell>Nhà cung cấp</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell>Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayOrders.map((item: Order, index: number) => (
-              <TableRow key={index}>
-                <TableCell>{page * itemsPerPage + 1 + index}</TableCell>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{moment(item.createdAt).format("YYYY-MM-DD")}</TableCell>
-                <TableCell>{item.supplier.name}</TableCell>
-                <TableCell>{item.status ? "Đã thanh toán" : "Chưa thanh toán"}</TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleEditItem(item)}>
-                    <EditIcon color="primary" />
-                  </IconButton>
-                  <IconButton onClick={() => handleClickDelete(item)}>
-                    <DeleteIcon color="error" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Box display="flex" justifyContent="right" marginTop="20px">
-        <Button
-          disabled={page === 0}
-          onClick={() => handleChangePage(-1)}
-        >
-          Trang trước
-        </Button>
-        <Button
-          disabled={items.length < itemsPerPage * (page + 1)}
-          onClick={() => handleChangePage(1)}
-          style={{ marginLeft: "10px" }}
-        >
-          Trang tiếp theo
-        </Button>
-      </Box>
-    </div>
+      )}
+      {open && (
+        <EditOrderDialog
+          order={order}
+          open={open}
+          setOpen={setOpen}
+          id="edit-dialog"
+        />
+      )}
+    </Page>
   );
 };
 
