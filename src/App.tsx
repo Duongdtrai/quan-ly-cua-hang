@@ -9,7 +9,7 @@ import EditProduct from "./views/product/edit";
 import CustomSkeletonPage from "./components/Skeleton/skeleton-page";
 
 const Home = React.lazy(() => import("./views/Home"));
-const ProductPage = React.lazy(() => import("./views/product"));
+const ProductPage = React.lazy(() => import("./views/product/product-listing"));
 const OrdersPage = React.lazy(() => import("./views/OrdersPage"));
 const SupplierPage = React.lazy(() => import("./views/supplier"));
 
