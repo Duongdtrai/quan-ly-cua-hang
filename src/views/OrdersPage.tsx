@@ -19,7 +19,7 @@ import { Order } from "../interface";
 import ConfirmationDialog from "../components/Dialog/ConfirmationDialog";
 
 const OrdersPage = () => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [items, setItems] = useState<Array<Order>>([]);
   const [displayOrders, setDisplayOrders] = useState<Array<Order>>([]);
@@ -71,15 +71,13 @@ const OrdersPage = () => {
           setOpen={setShowConfirmDialog}
           item={order}
           handleConfirm={handleDeleteItem}
+          id="confirm-dialog"
         />
       }
-      <Button variant="contained" onClick={handleAddItem}>
+      <Button variant="contained" onClick={handleAddItem} id="create-order-btn">
         Tạo đơn
       </Button>
-      <Button variant="contained" style={{marginLeft: '20px'}}>
-        Xuất excel
-      </Button>
-      {open && <EditOrderDialolg order={order} open={open} setOpen={setOpen} />}
+      {open && <EditOrderDialolg order={order} open={open} setOpen={setOpen} id="edit-dialog"/>}
       <TableContainer>
         <Table>
           <TableHead>
