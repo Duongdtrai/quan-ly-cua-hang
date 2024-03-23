@@ -26,6 +26,7 @@ import moment from "moment";
 import axios from "axios";
 import AddOrderProductDialog from "./AddOrderProductDialog";
 import { Order, OrderProduct, Product, Supplier } from "../../interface";
+import { Image, Text, Thumbnail } from "@shopify/polaris";
 
 const EditOrderDialolg = (props: any) => {
   const { open, setOpen, order } = props;
@@ -215,7 +216,7 @@ const EditOrderDialolg = (props: any) => {
                   <TextField
                     margin="dense"
                     label="Mã vận đơn"
-                    id="order code"
+                    id="order-code"
                     value={"1221"}
                     InputLabelProps={{
                       shrink: true,
@@ -276,7 +277,9 @@ const EditOrderDialolg = (props: any) => {
                         {orderData.products.map(
                           (item: OrderProduct, index: number) => (
                             <TableRow key={index}>
-                              <TableCell>{item.product.name}</TableCell>
+                              <TableCell>
+                                <Text as="p">{item.product.name}</Text>
+                              </TableCell>
                               <TableCell>{item.quantity}</TableCell>
                               <TableCell>
                                 {item.product.category.name}
