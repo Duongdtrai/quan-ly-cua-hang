@@ -16,7 +16,7 @@ import {
   Thumbnail,
 } from "@shopify/polaris";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Category, Product } from "../../../interface";
 import { CategoryListItem } from "../CategoryListItem";
@@ -79,7 +79,7 @@ const formatToTableRow = (
         labelHidden
         checked={selectedRows.find((rowId: any) => rowId === id)}
         onChange={(v: boolean) => {
-          selectedRows.find((rowId: any) => rowId === id)
+          !v
             ? setSelectedRows((prev: any) =>
                 prev.filter((rowId: any) => rowId !== id)
               )
@@ -149,25 +149,43 @@ const ProductsListing = () => {
     );
   });
 
+  console.log({ selectedRows });
+
   useEffect(() => {
     const rows: NodeListOf<HTMLElement> = document.querySelectorAll(
       ".Polaris-DataTable__TableRow"
     );
-    const handleClick = (index: number) => {
-      navigate(`/product/${filteredRows[index][0]}`);
-    };
+
     rows.forEach((row, index) => {
       row.style.cursor = "pointer";
-      row.addEventListener("click", () => handleClick(index));
-    });
 
-    return () => {
-      rows.forEach((row) =>
-        row.removeEventListener("click", () => handleClick)
+      const cols: NodeListOf<HTMLElement> = row.querySelectorAll(
+        ".Polaris-DataTable__Cell"
       );
-    };
+
+      cols.forEach((col) => {
+        col.onclick = (e: any) => {
+          const hasCheckbox =
+            e.target.querySelector('input[type="checkbox"]') ||
+            e.target.classList[0] === "Polaris-Checkbox__Input" ||
+            e.target.classList[0] === "Polaris-Checkbox__Backdrop";
+
+          if (!hasCheckbox && !selectedRows.length) {
+            navigate(`/product/${filteredRows[index][0]}`);
+          } else {
+            setSelectedRows((prev: number[]) =>
+              prev.find((rowId: any) => rowId === filteredRows[index][0])
+                ? prev.filter(
+                    (rowId: any) => rowId !== Number(filteredRows[index][0])
+                  )
+                : [...prev, Number(filteredRows[index][0])]
+            );
+          }
+        };
+      });
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(filteredRows)]);
+  }, [filteredRows, selectedRows]);
 
   return (
     <Page
