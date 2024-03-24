@@ -1,8 +1,8 @@
 export interface Order {
   createdAt: string;
-  id: number;
+  id: number | string;
   status: boolean;
-  products: Array<OrderProduct>;
+  orderProducts: Array<OrderProduct> | undefined;
   supplier: {
     id: string;
     name: String;

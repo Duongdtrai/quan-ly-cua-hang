@@ -10,7 +10,7 @@ import CustomSkeletonPage from "./components/Skeleton/skeleton-page";
 
 const Home = React.lazy(() => import("./views/Home"));
 const ProductPage = React.lazy(() => import("./views/product/product-listing"));
-const OrdersPage = React.lazy(() => import("./views/OrdersPage"));
+const OrdersPage = React.lazy(() => import("./views/order"));
 const SupplierPage = React.lazy(() => import("./views/supplier"));
 
 function App() {
