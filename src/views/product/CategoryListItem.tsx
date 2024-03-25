@@ -1,4 +1,10 @@
-import { Box, Checkbox, InlineStack, Text } from "@shopify/polaris";
+import {
+  Box,
+  Checkbox,
+  InlineStack,
+  RadioButton,
+  Text,
+} from "@shopify/polaris";
 import { memo } from "react";
 import { Category } from "../../interface";
 
@@ -6,6 +12,9 @@ interface ICategoryListItem {
   category: Category;
   selectedCategorys: Category[];
   setSelectedCategorys: any;
+  onlyChoice?: boolean;
+  closePopover?: Function;
+  setCategory?: Function;
 }
 
 export const CategoryListItem = memo(
@@ -13,16 +22,25 @@ export const CategoryListItem = memo(
     category,
     selectedCategorys,
     setSelectedCategorys,
+    onlyChoice,
+    closePopover,
+    setCategory,
   }: ICategoryListItem) {
     const handleChangeSelectedCategorys = () => {
       const newChecked = !selectedCategorys
         .map((p) => p.id)
         .includes(category.id);
-      setSelectedCategorys((preState: Category[]) =>
-        newChecked
-          ? [...preState, category]
-          : preState.filter((p) => p.id !== category.id)
-      );
+
+      onlyChoice
+        ? setSelectedCategorys([category])
+        : setSelectedCategorys((preState: Category[]) =>
+            newChecked
+              ? [...preState, category]
+              : preState.filter((p) => p.id !== category.id)
+          );
+
+      typeof closePopover === "function" && closePopover();
+      typeof setCategory === "function" && setCategory(category);
     };
 
     return (
@@ -44,13 +62,31 @@ export const CategoryListItem = memo(
             blockAlign="center"
             wrap={false}
           >
-            <Checkbox
-              value={`${category.id}`}
-              label={category.name}
-              labelHidden
-              onChange={handleChangeSelectedCategorys}
-              checked={selectedCategorys.map((p) => p.id).includes(category.id)}
-            />
+            {onlyChoice ? (
+              <RadioButton
+                value={`${category.id}`}
+                ariaDescribedBy="category"
+                label={category.name}
+                labelHidden
+                checked={selectedCategorys
+                  .map((p) => p.id)
+                  .includes(category.id)}
+                onChange={() => {
+                  handleChangeSelectedCategorys();
+                  typeof closePopover === "function" && closePopover();
+                }}
+              />
+            ) : (
+              <Checkbox
+                value={`${category.id}`}
+                label={category.name}
+                labelHidden
+                onChange={handleChangeSelectedCategorys}
+                checked={selectedCategorys
+                  .map((p) => p.id)
+                  .includes(category.id)}
+              />
+            )}
 
             <Text as="span" variant="bodyMd" truncate>
               {category.name}

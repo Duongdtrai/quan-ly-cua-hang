@@ -12,7 +12,7 @@ function sleep(milli: number) {
 }
 const SupplierPage = () => {
   const navigate = useNavigate();
-  const [initTable, setInitTable] =useState (true)
+  const [initTable, setInitTable] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isActiveAddModal, setIsActiveAddModal] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -45,7 +45,6 @@ const SupplierPage = () => {
     });
   }, [pageIndex, pageSize, initTable]);
 
-
   return (
     <Page
       backAction={{ content: "Supplier", url: "/" }}
@@ -54,6 +53,7 @@ const SupplierPage = () => {
         content: "New supplier",
         onAction: () => setIsActiveAddModal(true),
       }}
+      fullWidth
     >
       {initTable ? (
         <SkeletonIndexTable number={4} />

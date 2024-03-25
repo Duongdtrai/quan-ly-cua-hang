@@ -5,6 +5,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import { Thumbnail } from "@shopify/polaris";
+import { ImageIcon } from "@shopify/polaris-icons";
 import * as React from "react";
 
 interface Data {
@@ -75,7 +77,10 @@ export default function TableProducts() {
             >
               <TableCell align="left">{row.id}</TableCell>
               <TableCell align="right">
-                <img src={row.url} alt="Test"></img>
+                <Thumbnail
+                  source={row.url ? row.url : ImageIcon}
+                  alt={row.name}
+                />
               </TableCell>
               <TableCell align="right">{row.name}</TableCell>
               <TableCell align="right">{row.quantity}</TableCell>
