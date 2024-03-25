@@ -1,4 +1,3 @@
-import { SearchIcon } from "@shopify/polaris-icons";
 import {
   BlockStack,
   Box,
@@ -15,11 +14,17 @@ import {
   TextField,
   Thumbnail,
 } from "@shopify/polaris";
+import { SearchIcon } from "@shopify/polaris-icons";
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Category, Product } from "../../../interface";
 import { CategoryListItem } from "../CategoryListItem";
+import { useModal } from "../../../hook/useModal";
+import { EModal } from "../../../constants";
+import ModalEditProduct from "../modal/modal-edit-product";
+import ModalUnsave from "../modal/modal-unsave";
+import ModalDeleteProduct from "../modal/modal-delete-product";
 
 const defaultTable: {
   heading: string;
@@ -101,6 +106,7 @@ const formatToTableRow = (
 
 const ProductsListing = () => {
   const navigate = useNavigate();
+  const { openModal, state: stateModal } = useModal();
   const [listCategory, setListCategory] = useState<Category[]>([]);
   const [sortedRows, setSortedRows] = useState<TableData[][]>([]);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -134,7 +140,10 @@ const ProductsListing = () => {
         if (res.status === 200) setListCategory(res?.data?.data?.data || []);
       })
       .catch((e) => console.error(e));
-  }, []);
+  }, [
+    stateModal[EModal.MODAL_EDIT_PRODUCT]?.active,
+    stateModal[EModal.MODAL_DELETE_PRODUCT]?.active,
+  ]);
 
   const handleSort = (index: number, direction: "ascending" | "descending") =>
     sortedRows?.length &&
@@ -149,8 +158,6 @@ const ProductsListing = () => {
     );
   });
 
-  console.log({ selectedRows });
-
   useEffect(() => {
     const rows: NodeListOf<HTMLElement> = document.querySelectorAll(
       ".Polaris-DataTable__TableRow"
@@ -159,30 +166,21 @@ const ProductsListing = () => {
     rows.forEach((row, index) => {
       row.style.cursor = "pointer";
 
-      const cols: NodeListOf<HTMLElement> = row.querySelectorAll(
-        ".Polaris-DataTable__Cell"
-      );
-
-      cols.forEach((col) => {
-        col.onclick = (e: any) => {
-          const hasCheckbox =
-            e.target.querySelector('input[type="checkbox"]') ||
-            e.target.classList[0] === "Polaris-Checkbox__Input" ||
-            e.target.classList[0] === "Polaris-Checkbox__Backdrop";
-
-          if (!hasCheckbox && !selectedRows.length) {
-            navigate(`/product/${filteredRows[index][0]}`);
-          } else {
-            setSelectedRows((prev: number[]) =>
-              prev.find((rowId: any) => rowId === filteredRows[index][0])
-                ? prev.filter(
-                    (rowId: any) => rowId !== Number(filteredRows[index][0])
-                  )
-                : [...prev, Number(filteredRows[index][0])]
-            );
-          }
-        };
-      });
+      row.onclick = (e) => {
+        if (
+          (e.target as any)?.classList[0] === "Polaris-Checkbox__Input" ||
+          (e.target as any)?.classList[0] === "Polaris-Checkbox__Backdrop"
+        ) {
+        } else {
+          setSelectedRows((prev: number[]) =>
+            prev.find((rowId: any) => rowId === filteredRows[index][0])
+              ? prev.filter(
+                  (rowId: any) => rowId !== Number(filteredRows[index][0])
+                )
+              : [...prev, Number(filteredRows[index][0])]
+          );
+        }
+      };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRows, selectedRows]);
@@ -193,6 +191,10 @@ const ProductsListing = () => {
       title="Danh sách sản phẩm"
       backAction={{
         onAction: () => navigate("/"),
+      }}
+      primaryAction={{
+        content: "Thêm sản phẩm",
+        onAction: () => openModal(EModal.MODAL_EDIT_PRODUCT),
       }}
     >
       <BlockStack gap={"400"}>
@@ -231,7 +233,7 @@ const ProductsListing = () => {
                     }}
                     label="Search category"
                     labelHidden
-                    placeholder="Search category"
+                    placeholder="Tìm kiếm theo loại"
                     value={searchCategory}
                     prefix={<Icon source={SearchIcon} tone="base" />}
                     autoComplete="off"
@@ -254,6 +256,13 @@ const ProductsListing = () => {
               </Box>
             </Popover>
           </Box>
+
+          <Button
+            onClick={() => setSelectedRows([])}
+            disabled={!selectedRows.length}
+          >
+            Bỏ chọn
+          </Button>
         </InlineStack>
 
         <Box position="relative">
@@ -284,15 +293,42 @@ const ProductsListing = () => {
                 borderRadius: 8,
                 border: "1px solid #f1f1f1",
                 transform: "translateX(-50%)",
+                display: "flex",
+                gap: "12px",
               }}
             >
-              <Button variant="primary" tone="critical">
-                Delete
+              <Button
+                variant="primary"
+                disabled={selectedRows.length > 1}
+                onClick={() =>
+                  openModal(EModal.MODAL_EDIT_PRODUCT, {
+                    data: sortedRows.find((row) => row[0] === selectedRows[0]),
+                  })
+                }
+              >
+                Sửa sản phẩm
+              </Button>
+              <Button
+                variant="primary"
+                tone="critical"
+                onClick={() =>
+                  openModal(EModal.MODAL_DELETE_PRODUCT, {
+                    data: { selectedRows, setSelectedRows },
+                  })
+                }
+              >
+                Xoá sản phẩm
               </Button>
             </div>
           )}
         </Box>
       </BlockStack>
+      <ModalEditProduct />
+      <ModalDeleteProduct
+        selectedRows={selectedRows}
+        setSelectedRows={setSelectedRows}
+      />
+      <ModalUnsave />
     </Page>
   );
 };

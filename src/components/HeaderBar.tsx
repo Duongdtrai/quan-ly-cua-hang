@@ -15,12 +15,12 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
 
 const pages = [
-  { name: "Home", path: "/" },
-  { name: "Products", path: "/products" },
-  { name: "Orders", path: "/orders" },
-  { name: "Supplier", path: "/suppliers" },
+  { name: "Trang chủ", path: "/" },
+  { name: "Mặt hàng", path: "/products" },
+  { name: "Đơn nhập hàng", path: "/orders" },
+  { name: "Nhà cung cấp", path: "/suppliers" },
 ];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Trang cá nhân", "Tài khoản", "Đăng xuất"];
 
 function HeaderBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -49,7 +49,7 @@ function HeaderBar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-            {/* Mobile screen */}
+          {/* Mobile screen */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -88,10 +88,10 @@ function HeaderBar() {
               ))}
             </Menu>
           </Box>
-            {/* Laptop screen */}
+          {/* Laptop screen */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
-              <Link to={page.path} style={{textDecoration: 'none'}}>
+              <Link to={page.path} style={{ textDecoration: "none" }}>
                 <Button
                   key={page.name}
                   onClick={handleCloseNavMenu}
@@ -102,9 +102,9 @@ function HeaderBar() {
               </Link>
             ))}
           </Box>
-            {/* Profile settings */}
+          {/* Profile settings */}
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Mở cài đặt">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
               </IconButton>
