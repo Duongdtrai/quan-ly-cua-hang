@@ -34,7 +34,13 @@ const ModalEditProduct = () => {
   const [isCreatedNewCategory, setIsCreateNewCategory] = useState(false);
   const [listCategory, setListCategory] = useState<Category[]>([]);
   const [searchCategory, setSearchCategory] = useState("");
-  const [selectedCategorys, setSelectedCategorys] = useState<Category[]>([]);
+  const [selectedCategorys, setSelectedCategorys] = useState<Category[]>([
+    {
+      id: data[8] || "",
+      name: data[3] || "",
+      isDeleted: false,
+    },
+  ]);
 
   const fetchProduct = async (id: number) => {
     await axios
@@ -86,7 +92,7 @@ const ModalEditProduct = () => {
   const [quantity, setQuantity] = useState(data[5] || 0);
   const [description, setDescription] = useState(data[7]);
   const [category, setCategory] = useState({
-    id: data[8] || "",
+    id: data[7] || "",
     name: data[3] || "",
   });
 
@@ -111,6 +117,13 @@ const ModalEditProduct = () => {
     setErrorPriceText("");
     setErrorQuantityText("");
     setErrorCategoryText("");
+    setSelectedCategorys([
+      {
+        id: data[7] || "",
+        name: data[3] || "",
+        isDeleted: false,
+      },
+    ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify([data])]);
 
@@ -154,21 +167,32 @@ const ModalEditProduct = () => {
       return isError;
     }
 
-    let newCategory = category;
+    let newCategory: any = category;
 
     if (isCreatedNewCategory) {
-      const response = await axios.post(
-        `http://54.199.68.197:8081/api/v1/category`,
-        { name: category.name }
-      );
-      console.log({ response });
+      const response: any = await axios
+        .post(`http://54.199.68.197:8081/api/v1/category`, {
+          name: category.name,
+        })
+        .catch((e) => console.log(e));
+      if (response?.status === 200) {
+        newCategory = {
+          id: response.data.data.id,
+        };
+      } else {
+        setErrorCategoryText("Loại mặt hàng đã tồn tại");
+        return true;
+      }
     }
 
-    const data: any = { name, image, quantity, price, description };
-
-    if (category.id) {
-      data.category = { id: category.id };
-    }
+    const data: any = {
+      name,
+      image,
+      quantity,
+      price,
+      description,
+      category: { id: newCategory.id },
+    };
 
     if (!id) {
       await axios
@@ -181,6 +205,28 @@ const ModalEditProduct = () => {
         .then((res) => console.log(res))
         .catch((e) => console.log(e));
     }
+
+    setName(data[1] || "");
+    setImage(data[2] || "");
+    setPrice(data[4] || 0);
+    setQuantity(data[5] || 0);
+    setDescription(data[6]);
+    setCategory({
+      id: data[7] || "",
+      name: data[3] || "",
+    });
+    setErrorNameText("");
+    setErrorPriceText("");
+    setErrorQuantityText("");
+    setErrorCategoryText("");
+    setSelectedCategorys([
+      {
+        id: data[7] || "",
+        name: data[3] || "",
+        isDeleted: false,
+      },
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const handelSubmit = () => {
@@ -236,8 +282,6 @@ const ModalEditProduct = () => {
       closeModal(EModal.MODAL_EDIT_PRODUCT);
     }
   };
-
-  console.log(category);
 
   return (
     <Modal

@@ -19,8 +19,6 @@ interface ISelectedMediaCard {
 export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
   const { imageUrl, filename, setImage } = props;
 
-  console.log({ imageUrl });
-
   return (
     <Box
       borderColor="border"
