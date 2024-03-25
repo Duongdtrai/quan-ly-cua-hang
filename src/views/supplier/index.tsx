@@ -1,5 +1,5 @@
 import { Page } from "@shopify/polaris";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SupplierDetailModal from "./SupplierDetailModal";
 import SupplierDataTable from "./SupplierDataTable";
@@ -24,7 +24,7 @@ const SupplierPage = () => {
   const onDismissAddModal = () => setIsActiveAddModal(false);
   const onOpenAddModal = () => setIsActiveAddModal(true);
 
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     await axios
       .get(`${SUPPLIER_API}?page=${pageIndex}&size=${pageSize}`)
       .then((response) => response.data)
@@ -40,8 +40,10 @@ const SupplierPage = () => {
         else 
           setPageIndex(metadata.page)
       })
-      .catch((error) => {});
-  };
+      .catch((error) => {
+        console.log(error)
+      });
+  }, [pageIndex, pageSize]);
 
   const onViewSupplier = async (id: number) =>{
     setLoadingModal(true)
@@ -61,14 +63,14 @@ const SupplierPage = () => {
       setLoading(false);
       setInitTable(false);
     });
-  }, [pageIndex, pageSize, initTable]);
+  }, [pageIndex, pageSize, initTable, fetchSuppliers]);
 
   return (
     <Page
-      backAction={{ content: "Supplier", url: "/" }}
-      title="Suppliers"
+      backAction={{ content: "supplier_back", url: "/" }}
+      title="Nhà cung cấp"
       primaryAction={{
-        content: "New supplier",
+        content: "Thêm nhà cung cấp",
         onAction: () => setIsActiveAddModal(true),
       }}
       fullWidth
@@ -94,6 +96,7 @@ const SupplierPage = () => {
             active={isActiveAddModal}
             onDismiss={onDismissAddModal}
             supplier={supplierData}
+            setSupplier={setSupplierData}
             fetchSuppliers={fetchSuppliers}
           />
         </>

@@ -16,6 +16,7 @@ interface SupplierDetailModalProps {
   active: boolean;
   onDismiss: () => void;
   supplier: Supplier | undefined;
+  setSupplier: React.Dispatch<React.SetStateAction<Supplier | undefined>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   fetchSuppliers: () => Promise<void>;
@@ -25,6 +26,7 @@ const SupplierDetailModal = ({
   active,
   onDismiss,
   supplier,
+  setSupplier,
   loading,
   fetchSuppliers
 }: SupplierDetailModalProps) => {
@@ -53,6 +55,7 @@ const SupplierDetailModal = ({
   const onClearAddress = () => setAddress('');
 
   const resetForm = () => {
+    setSupplier(undefined)
     setName('');
     setEmail('');
     setPhoneNumber('');
@@ -129,7 +132,6 @@ const SupplierDetailModal = ({
       note,
     };
 
-
     const response = supplier ? await axios.put(`${SUPPLIER_API}/${supplier.id}`, _supplier) : await axios.post(SUPPLIER_API, _supplier);
     if (response.status === 200) {
       await fetchSuppliers()      
@@ -148,7 +150,6 @@ const SupplierDetailModal = ({
     setNote(supplier?.note || '');
   }, [supplier])
 
-
   return (
     <Modal
       loading={loading}
@@ -157,14 +158,14 @@ const SupplierDetailModal = ({
       onClose={onCancel}
       title={supplier ? "Thông tin nhà cung cấp" : "Thêm nhà cung cấp"}
       primaryAction={{
-        content: supplier ? "Update" : "Submit",
+        content: supplier ? "Cập nhật" : "Thêm",
         onAction: onSubmit,
         id: 'supplier--modal--submit',
         
       }}
       secondaryActions={[
         {
-          content: "Cancel",
+          content: "Huỷ",
           onAction: onCancel,
           id: 'supplier--modal--cancel',
         },
