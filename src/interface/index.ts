@@ -7,6 +7,9 @@ export interface Order {
     id: string;
     name: String;
   };
+  note: string | undefined;
+  tax: number;
+  code: string;
 }
 
 export interface Category {
