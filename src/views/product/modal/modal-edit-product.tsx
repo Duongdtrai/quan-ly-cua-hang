@@ -3,23 +3,21 @@ import {
   Box,
   Button,
   Icon,
-  InlineStack,
   Modal,
-  OptionList,
   Popover,
   Scrollable,
   Text,
   TextField,
 } from "@shopify/polaris";
+import { SearchIcon } from "@shopify/polaris-icons";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { EModal } from "../../../constants";
 import { useModal } from "../../../hook/useModal";
-import { useEffect, useRef, useState } from "react";
+import { Category, Product } from "../../../interface";
+import { CategoryListItem } from "../CategoryListItem";
 import DropZoneImage from "../component/drop-zone-image";
 import SelectedMediaCard from "../component/selected-media-card";
-import { Category, Product } from "../../../interface";
-import axios from "axios";
-import { CategoryListItem } from "../CategoryListItem";
-import { SearchIcon } from "@shopify/polaris-icons";
 
 const EErrorText = {
   Empty: (name: string) => `${name} không được để trống.`,
@@ -36,7 +34,13 @@ const ModalEditProduct = () => {
   const [isCreatedNewCategory, setIsCreateNewCategory] = useState(false);
   const [listCategory, setListCategory] = useState<Category[]>([]);
   const [searchCategory, setSearchCategory] = useState("");
-  const [selectedCategorys, setSelectedCategorys] = useState<Category[]>([]);
+  const [selectedCategorys, setSelectedCategorys] = useState<Category[]>([
+    {
+      id: data[8] || "",
+      name: data[3] || "",
+      isDeleted: false,
+    },
+  ]);
 
   const fetchProduct = async (id: number) => {
     await axios
@@ -88,7 +92,7 @@ const ModalEditProduct = () => {
   const [quantity, setQuantity] = useState(data[5] || 0);
   const [description, setDescription] = useState(data[7]);
   const [category, setCategory] = useState({
-    id: data[8] || "",
+    id: data[7] || "",
     name: data[3] || "",
   });
 
@@ -109,22 +113,33 @@ const ModalEditProduct = () => {
       id: data[7] || "",
       name: data[3] || "",
     });
+    setErrorNameText("");
+    setErrorPriceText("");
+    setErrorQuantityText("");
+    setErrorCategoryText("");
+    setSelectedCategorys([
+      {
+        id: data[7] || "",
+        name: data[3] || "",
+        isDeleted: false,
+      },
+    ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify([data])]);
 
   const handleSaveProduct = async () => {
     let isError = false;
     if (!name) {
-      setErrorNameText(EErrorText.Empty("Tên sản phẩm"));
+      setErrorNameText(EErrorText.Empty("Tên mặt hàng"));
       isError = true;
     } else {
       setErrorNameText("");
     }
     if (!price && Number(price) !== 0) {
-      setErrorPriceText(EErrorText.Empty("Giá sản phẩm"));
+      setErrorPriceText(EErrorText.Empty("Giá mặt hàng"));
       isError = true;
     } else if (Number(price) < 0) {
-      setErrorPriceText(EErrorText.NumberLessZezo("Giá sản phẩm"));
+      setErrorPriceText(EErrorText.NumberLessZezo("Giá mặt hàng"));
       isError = true;
     } else {
       setErrorPriceText("");
@@ -142,7 +157,7 @@ const ModalEditProduct = () => {
       setErrorQuantityText("");
     }
     if (!category.name) {
-      setErrorCategoryText(EErrorText.Empty("Loại sản phẩm"));
+      setErrorCategoryText(EErrorText.Empty("Loại mặt hàng"));
       isError = true;
     } else {
       setErrorCategoryText("");
@@ -152,21 +167,32 @@ const ModalEditProduct = () => {
       return isError;
     }
 
-    let newCategory = category;
+    let newCategory: any = category;
 
     if (isCreatedNewCategory) {
-      const response = await axios.post(
-        `http://54.199.68.197:8081/api/v1/category`,
-        { name: category.name }
-      );
-      console.log({ response });
+      const response: any = await axios
+        .post(`http://54.199.68.197:8081/api/v1/category`, {
+          name: category.name,
+        })
+        .catch((e) => console.log(e));
+      if (response?.status === 200) {
+        newCategory = {
+          id: response.data.data.id,
+        };
+      } else {
+        setErrorCategoryText("Loại mặt hàng đã tồn tại");
+        return true;
+      }
     }
 
-    const data: any = { name, image, quantity, price, description };
-
-    if (category.id) {
-      data.category = { id: category.id };
-    }
+    const data: any = {
+      name,
+      image,
+      quantity,
+      price,
+      description,
+      category: { id: newCategory.id },
+    };
 
     if (!id) {
       await axios
@@ -179,6 +205,28 @@ const ModalEditProduct = () => {
         .then((res) => console.log(res))
         .catch((e) => console.log(e));
     }
+
+    setName(data[1] || "");
+    setImage(data[2] || "");
+    setPrice(data[4] || 0);
+    setQuantity(data[5] || 0);
+    setDescription(data[6]);
+    setCategory({
+      id: data[7] || "",
+      name: data[3] || "",
+    });
+    setErrorNameText("");
+    setErrorPriceText("");
+    setErrorQuantityText("");
+    setErrorCategoryText("");
+    setSelectedCategorys([
+      {
+        id: data[7] || "",
+        name: data[3] || "",
+        isDeleted: false,
+      },
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const handelSubmit = () => {
@@ -235,25 +283,10 @@ const ModalEditProduct = () => {
     }
   };
 
-  useEffect(() => {
-    if (!state[EModal.MODAL_EDIT_PRODUCT]?.active) {
-      setName("");
-      setImage("");
-      setPrice(0);
-      setQuantity(0);
-      setDescription("");
-      setCategory({ id: 1, name: "" });
-      setErrorNameText("");
-      setErrorPriceText("");
-      setErrorQuantityText("");
-      setErrorCategoryText("");
-    }
-  }, [state[EModal.MODAL_EDIT_PRODUCT]?.active]);
-
   return (
     <Modal
       open={state[EModal.MODAL_EDIT_PRODUCT]?.active}
-      title={data.length ? `Chỉnh sửa sản phẩm ${name}` : "Thêm sản phẩm"}
+      title={data.length ? `Chỉnh sửa mặt hàng ${name}` : "Thêm mặt hàng"}
       onClose={handleCloseModal}
       primaryAction={{
         content: "Lưu",
@@ -293,7 +326,7 @@ const ModalEditProduct = () => {
           )}
           <BlockStack gap={"200"}>
             <Text as="p" variant="bodyMd">
-              Loại sản phẩm
+              Loại mặt hàng
               <span style={{ color: "rgb(142, 31, 11)" }}> *</span>
             </Text>
             <BlockStack align="space-between" gap={"200"}>
@@ -326,7 +359,7 @@ const ModalEditProduct = () => {
                           {category.id
                             ? listCategory.find((c) => c.id === category.id)
                                 ?.name
-                            : "Lọc theo loại sản phẩm"}
+                            : "Lọc theo loại mặt hàng"}
                         </Button>
                       }
                       onClose={() =>
@@ -396,7 +429,7 @@ const ModalEditProduct = () => {
                             </svg>
                           </span>
                         </div>
-                        Loại sản phẩm không được để trống.
+                        Loại mặt hàng không được để trống.
                       </div>
                     </div>
                   )}
@@ -406,7 +439,7 @@ const ModalEditProduct = () => {
               <Button onClick={() => setIsCreateNewCategory((prev) => !prev)}>
                 {isCreatedNewCategory
                   ? "Huỷ thêm mới"
-                  : "Thêm mới loại sản phẩm"}
+                  : "Thêm mới loại mặt hàng"}
               </Button>
             </BlockStack>
           </BlockStack>

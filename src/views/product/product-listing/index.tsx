@@ -33,7 +33,7 @@ const defaultTable: {
 }[] = [
   { heading: "", type: "text", sortable: false },
   { heading: "Id", type: "text", sortable: true },
-  { heading: "Tên sản phẩm", type: "text", sortable: true },
+  { heading: "Tên mặt hàng", type: "text", sortable: true },
   { heading: "Hình ảnh", type: "text", sortable: false },
   { heading: "Loại", type: "text", sortable: false },
   { heading: "Giá niêm yết", type: "numeric", sortable: true },
@@ -121,7 +121,7 @@ const ProductsListing = () => {
 
   useEffect(() => {
     axios
-      .get("http://54.199.68.197:8081/api/v1/products")
+      .get("http://54.199.68.197:8081/api/v1/products?page=0&size=10000")
       .then((res) => {
         if (res.status === 200)
           setSortedRows(
@@ -181,6 +181,12 @@ const ProductsListing = () => {
           );
         }
       };
+
+      row.ondblclick = (e) => {
+        e.preventDefault();
+
+        openModal(EModal.MODAL_EDIT_PRODUCT, { data: filteredRows[index] });
+      };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRows, selectedRows]);
@@ -188,12 +194,12 @@ const ProductsListing = () => {
   return (
     <Page
       fullWidth
-      title="Danh sách sản phẩm"
+      title="Quản lý mặt hàng"
       backAction={{
         onAction: () => navigate("/"),
       }}
       primaryAction={{
-        content: "Thêm sản phẩm",
+        content: "Thêm mặt hàng",
         onAction: () => openModal(EModal.MODAL_EDIT_PRODUCT),
       }}
     >
@@ -205,7 +211,7 @@ const ProductsListing = () => {
             value={searchProduct}
             onChange={(v) => setSearchProduct(v)}
             onClearButtonClick={() => setSearchProduct("")}
-            placeholder="Tìm kiếm sản phẩm..."
+            placeholder="Tìm kiếm mặt hàng..."
             autoComplete=""
             clearButton
           />
@@ -219,7 +225,7 @@ const ProductsListing = () => {
                   onClick={() => setActivePopover((prev) => !prev)}
                   disclosure
                 >
-                  Lọc theo loại sản phẩm
+                  Lọc theo loại mặt hàng
                 </Button>
               }
               onClose={() => setActivePopover((prev) => !prev)}
@@ -306,7 +312,7 @@ const ProductsListing = () => {
                   })
                 }
               >
-                Sửa sản phẩm
+                Sửa mặt hàng
               </Button>
               <Button
                 variant="primary"
@@ -317,7 +323,7 @@ const ProductsListing = () => {
                   })
                 }
               >
-                Xoá sản phẩm
+                Xoá mặt hàng
               </Button>
             </div>
           )}

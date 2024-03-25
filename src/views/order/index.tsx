@@ -109,7 +109,7 @@ const OrdersPage = () => {
       backAction={{
         onAction: () => navigate("/"),
       }}
-      title="Danh sách đơn hàng"
+      title="Quản lý đơn hàng"
       primaryAction={{
         content: "Tạo đơn hàng",
         onAction: () => handleAddItem(),

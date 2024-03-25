@@ -13,6 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
+import { Text } from "@shopify/polaris";
 
 const pages = [
   { name: "Trang chủ", path: "/" },
@@ -82,7 +83,9 @@ function HeaderBar() {
               {pages.map((page) => (
                 <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                   <Link to={page.path}>
-                    <Typography textAlign="center">{page.name}</Typography>
+                    <Text as="span" variant="headingMd">
+                      {page.name}
+                    </Text>
                   </Link>
                 </MenuItem>
               ))}
@@ -97,7 +100,9 @@ function HeaderBar() {
                   onClick={handleCloseNavMenu}
                   sx={{ my: 2, color: "white", display: "block" }}
                 >
-                  <Typography textAlign="center">{page.name}</Typography>
+                  <Text as="span" variant="headingMd" alignment="center">
+                    {page.name}
+                  </Text>
                 </Button>
               </Link>
             ))}
@@ -127,7 +132,9 @@ function HeaderBar() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                  <Text as="span" variant="bodyLg">
+                    {setting}
+                  </Text>
                 </MenuItem>
               ))}
             </Menu>
