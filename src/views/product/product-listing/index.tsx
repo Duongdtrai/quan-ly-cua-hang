@@ -194,7 +194,7 @@ const ProductsListing = () => {
   return (
     <Page
       fullWidth
-      title="Danh sách mặt hàng"
+      title="Quản lý mặt hàng"
       backAction={{
         onAction: () => navigate("/"),
       }}

@@ -25,7 +25,7 @@ const OrdersPage = () => {
     <div style={{ textAlign: "left" }}>Nhà cung cấp</div>,
     <div style={{ textAlign: "center" }}>Trạng thái</div>,
     <div style={{ textAlign: "center" }}>Thao tác</div>,
-  ]
+  ];
 
   const formatToRowData = (data: Order[]) => {
     return data.map((item: Order, index: number) => [
@@ -37,13 +37,19 @@ const OrdersPage = () => {
       item.supplier.name,
       item.status ? "Đã thanh toán" : "Chưa thanh toán",
       <ButtonGroup>
-        <Button onClick={() => handleEditItem(item)} id="edit-order-btn">Chỉnh sửa</Button>
-        <Button tone="critical" onClick={() => handleClickDelete(item)} id="delete-order-btn">
+        <Button onClick={() => handleEditItem(item)} id="edit-order-btn">
+          Chỉnh sửa
+        </Button>
+        <Button
+          tone="critical"
+          onClick={() => handleClickDelete(item)}
+          id="delete-order-btn"
+        >
           Xóa
         </Button>
-      </ButtonGroup>
-    ])
-  }
+      </ButtonGroup>,
+    ]);
+  };
 
   const fetchData = () => {
     axios
@@ -56,7 +62,7 @@ const OrdersPage = () => {
         }
       })
       .catch((e) => console.error(e));
-  }
+  };
 
   useEffect(() => {
     fetchData();
@@ -94,10 +100,10 @@ const OrdersPage = () => {
 
   return (
     <Page
-    backAction={{
-      onAction: () => navigate("/"),
-    }}
-      title="Danh sách đơn hàng"
+      backAction={{
+        onAction: () => navigate("/"),
+      }}
+      title="Quản lý đơn hàng"
       primaryAction={{
         content: "Tạo đơn hàng",
         onAction: () => handleAddItem(),
