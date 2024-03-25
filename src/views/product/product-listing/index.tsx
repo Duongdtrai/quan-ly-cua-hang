@@ -333,6 +333,7 @@ const ProductsListing = () => {
       <ModalDeleteProduct
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
+        type={"products"}
       />
       <ModalUnsave />
     </Page>

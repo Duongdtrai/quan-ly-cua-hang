@@ -58,7 +58,13 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        "http://54.199.68.197:8081/api/v1/category"
+        "http://54.199.68.197:8081/api/v1/category",
+        {
+          params: {
+            page: 0,
+            size: 1000,
+          },
+        }
       );
       setCategories(response?.data?.data?.data);
       if (!data) setCategory(response?.data?.data?.data[0].id.toString())

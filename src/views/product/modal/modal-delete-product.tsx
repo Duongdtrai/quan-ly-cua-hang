@@ -7,16 +7,18 @@ import axios from "axios";
 const ModalDeleteProduct = ({
   selectedRows = [],
   setSelectedRows = () => {},
+  type
 }: {
   selectedRows: number[];
   setSelectedRows: Function;
+  type: string;
 }) => {
   const { state, closeModal } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDeleteProduct = async (id: number) => {
     await axios
-      .delete(`http://54.199.68.197:8081/api/v1/products/${id}`)
+      .delete(`http://54.199.68.197:8081/api/v1/${type}/${id}`)
       .then((res) => console.log(res))
       .catch((e) => console.log(e));
 

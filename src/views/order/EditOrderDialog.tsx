@@ -34,13 +34,20 @@ const EditOrderDialog: React.FC<Props> = ({
   order,
   fetchData,
 }) => {
-  const [note, setNote] = useState<string>("");
-  const [tax, setTax] = useState<number>(0.1);
+  const [taxType, setTaxType] = useState<string>("5");
   const [listSupplier, setListSupplier] = useState<Supplier[]>([]);
   const [totalPrice, setTotalPrice] = useState<number | undefined>(0);
   const [addProductDialog, setAddProductDialog] = useState<boolean>(false);
   const [orderProduct, setOrderProduct] = useState<OrderProduct>();
-  const [orderData, setOrderData] = useState<Order>(order);
+  const [orderData, setOrderData] = useState<Order>(order || {
+    createdAt: moment().format("YYYY-MM-DD"),
+    status: false,
+    supplier: {id: 0, name: ''},
+    orderProducts: [],
+    tax: 0.05,
+    note: '',
+    code: ''
+  });
   const [supplier, setSupplier] = useState<string>(
     order?.supplier?.id.toString()
   );
@@ -107,23 +114,13 @@ const EditOrderDialog: React.FC<Props> = ({
 
   const handleChangeNote = (value: string) => {
     if (value.length <= 500) {
-      setNote(value);
+      setOrderData({...orderData, note: value});
     }
   };
 
   const handleChangeSupplier = (value: string) => {
     setSupplier(value as string);
-    if (orderData) {
-      setOrderData({...orderData, supplier: {id: value, name: ''}})
-    } else {
-      setOrderData({
-        createdAt: moment().format("YYYY-MM-DD"),
-        id: '',
-        status: false,
-        supplier: {id: value, name: ''},
-        orderProducts: []
-      })
-    }
+    setOrderData({...orderData, supplier: {id: value, name: ''}})
   }
 
   const handleUpdateItem = (data: OrderProduct, id: number) => {
@@ -139,6 +136,7 @@ const EditOrderDialog: React.FC<Props> = ({
           return item;
         }
       );
+      
       setOrderData({
         ...orderData,
         orderProducts:
@@ -174,7 +172,6 @@ const EditOrderDialog: React.FC<Props> = ({
       return {
         id: product.product.id,
         quantity: product.quantity,
-        tax: 100,
       };
     });
 
@@ -182,27 +179,39 @@ const EditOrderDialog: React.FC<Props> = ({
       await axios.put(`http://54.199.68.197:8081/api/v1/orders/${order.id}`, {
         supplier: orderData?.supplier,
         products: newData,
+      },
+      {
+        params: {
+          page: 0,
+          size: 1000,
+        },
       });
+      fetchData();
+      setOpen(false);
     } else {
-      console.log(orderData);
-      
       const sendData = {
+        ...orderData,
         supplier: {
-          id: orderData.supplier.id
+          id: orderData?.supplier.id
         },
         products: (orderData.orderProducts as Array<OrderProduct>).map((item: OrderProduct) => {
           return {
             id: item.product.id,
             quantity: item.quantity,
-            tax: item.tax,
           }
         }),
-        status: false
+        status: false,
       }
-      await axios.post("http://54.199.68.197:8081/api/v1/orders", sendData);
+      try {
+        const response = await axios.post("http://54.199.68.197:8081/api/v1/orders", sendData);
+        if (response?.data?.status === 200) {
+          fetchData();
+          setOpen(false);
+        }
+      } catch (e: any){
+        alert(e.response.data.message);
+      }
     }
-    fetchData();
-    setOpen(false);
   };
 
   return (
@@ -216,6 +225,7 @@ const EditOrderDialog: React.FC<Props> = ({
         />
       )}
       <Modal
+        size="large"
         title={order?.id ? "Sửa thông tin đơn hàng" : "Tạo đơn nhập hàng"}
         open={open}
         onClose={() => setOpen(false)}
@@ -232,7 +242,7 @@ const EditOrderDialog: React.FC<Props> = ({
       >
         <Modal.Section>
           <Grid>
-            <Grid.Cell columnSpan={{ lg: 8 }}>
+            <Grid.Cell columnSpan={{ lg: 8, md: 4, xs: 6 }}>
               <FormLayout>
                 <Grid>
                   <Grid.Cell columnSpan={{ xs: 6 }}>
@@ -249,8 +259,8 @@ const EditOrderDialog: React.FC<Props> = ({
                     <TextField
                       label="Mã vận đơn"
                       type="text"
-                      value={"1234"}
-                      disabled
+                      value={orderData?.code}
+                      onChange={(e) => setOrderData({...orderData, code: e})}
                       autoComplete="off"
                       id="delivery-code"
                     />
@@ -272,7 +282,7 @@ const EditOrderDialog: React.FC<Props> = ({
                 <TextField
                   id="note"
                   label="Ghi chú"
-                  value={note}
+                  value={orderData?.note}
                   onChange={handleChangeNote}
                   multiline={3}
                   autoComplete="off"
@@ -281,7 +291,7 @@ const EditOrderDialog: React.FC<Props> = ({
                 />
               </FormLayout>
             </Grid.Cell>
-            <Grid.Cell columnSpan={{ xs: 4 }}>
+            <Grid.Cell columnSpan={{ xs: 6, md: 2, lg: 4}}>
               <div style={{ marginBottom: "15px" }}>
                 <TextField
                   id="total-product-price"
@@ -292,11 +302,28 @@ const EditOrderDialog: React.FC<Props> = ({
                 />
               </div>
               <div style={{ marginBottom: "15px" }}>
+                <Select
+                  id="tax-select"
+                  label="Chọn mức thuế"
+                  value={taxType}
+                  options={[
+                    {
+                      label: "5%",
+                      value: "0.05"
+                    },
+                    {
+                      label: "10%",
+                      value: "0.1"
+                    },
+                  ]}
+                  onChange={(e) => setTaxType(e)}
+                />
+              </div>
+              <div style={{ marginBottom: "15px" }}>
                 <TextField
                   id="tax"
-                  label="Thuế"
-                  value={totalPrice ? (tax * totalPrice).toString() : "0"}
-                  disabled
+                  label="Giá trị thuế"
+                  value={totalPrice ? (parseFloat(taxType) * totalPrice).toString() : "0"}
                   autoComplete=""
                 />
               </div>
@@ -304,13 +331,13 @@ const EditOrderDialog: React.FC<Props> = ({
                 id="total"
                 label="Tổng hóa đơn"
                 value={
-                  totalPrice ? (tax * totalPrice + totalPrice).toString() : "0"
+                  totalPrice ? (parseFloat(taxType) * totalPrice + totalPrice).toString() : "0"
                 }
                 disabled
                 autoComplete=""
               />
             </Grid.Cell>
-            <Grid.Cell columnSpan={{ lg: 12 }}>
+            <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
               <Button
                 onClick={() => {
                   setAddProductDialog(true);
@@ -331,7 +358,7 @@ const EditOrderDialog: React.FC<Props> = ({
                 ]}
                 headings={[
                   "Tên mặt hàng",
-                  "Số lượng",
+                  <div style={{textAlign: 'center'}}>Số lượng</div>,
                   "Loại",
                   "Giá",
                   "Tổng tiền",
