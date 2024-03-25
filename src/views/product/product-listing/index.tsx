@@ -121,7 +121,7 @@ const ProductsListing = () => {
 
   useEffect(() => {
     axios
-      .get("http://54.199.68.197:8081/api/v1/products")
+      .get("http://54.199.68.197:8081/api/v1/products?page=0&size=10000")
       .then((res) => {
         if (res.status === 200)
           setSortedRows(
