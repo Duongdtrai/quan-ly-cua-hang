@@ -7,9 +7,8 @@ import axios from "axios";
 import { SUPPLIER_API } from "../../constants/api";
 import { Supplier } from "../../interface";
 import SkeletonIndexTable from "../../components/Skeleton/skeleton-table";
-function sleep(milli: number) {
-  return new Promise((resolve) => setTimeout(resolve, milli));
-}
+
+
 const SupplierPage = () => {
   const navigate = useNavigate();
   const [initTable, setInitTable] =useState (true)
@@ -19,10 +18,11 @@ const SupplierPage = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [pagesNumber, setPagesNumber] = useState(0);
+  const [supplierData, setSupplierData] = useState<Supplier| undefined>()
+  const [loadingModal, setLoadingModal] = useState(false)
 
   const onDismissAddModal = () => setIsActiveAddModal(false);
-  const addNewSuppliers = (_supplier: Supplier) =>
-    setSuppliers([_supplier, ...suppliers]);
+  const onOpenAddModal = () => setIsActiveAddModal(true);
 
   const fetchSuppliers = async () => {
     await axios
@@ -30,14 +30,32 @@ const SupplierPage = () => {
       .then((response) => response.data)
       .then((response) => response.data)
       .then((response) => {
+        console.log(response)
         const metadata = response.metadata;
         setPagesNumber(metadata.totalPages);
         setSuppliers(response.data);
+        if (pageIndex > metadata.totalPages - 1) {
+          setPageIndex(metadata.totalPages - 1);
+        }
+        else 
+          setPageIndex(metadata.page)
       })
       .catch((error) => {});
   };
 
+  const onViewSupplier = async (id: number) =>{
+    setLoadingModal(true)
+    onOpenAddModal()
+    const response = await axios.get(`${SUPPLIER_API}/${id}`)
+    const data = response.data;
+    if (data.status === 200) {
+      setSupplierData(data.data);
+      setLoadingModal(false)
+    }
+  }
+
   useEffect(() => {
+    console.log('render')
     setLoading(true);
     fetchSuppliers().then(() => {
       setLoading(false);
@@ -68,11 +86,15 @@ const SupplierPage = () => {
             loading={loading}
             setLoading={setLoading}
             fetchSuppliers={fetchSuppliers}
+            onViewSupplier={onViewSupplier}
           />
           <SupplierDetailModal
+            loading={loadingModal}
+            setLoading={setLoadingModal}
             active={isActiveAddModal}
             onDismiss={onDismissAddModal}
-            addNewSuppliers={addNewSuppliers}
+            supplier={supplierData}
+            fetchSuppliers={fetchSuppliers}
           />
         </>
       )}

@@ -106,7 +106,7 @@ export const SkeletonRowTableContent = ({ row, column }: { row: number, column: 
         return (
           <IndexTable.Row position={item} id={item.toString()} key={item}>
             {Array.from(Array(column).keys()).map((item, index) => (
-              <IndexTable.Cell>
+              <IndexTable.Cell key={index}>
                 <SkeletonBodyText key={index} lines={1} />
               </IndexTable.Cell>
             ))}

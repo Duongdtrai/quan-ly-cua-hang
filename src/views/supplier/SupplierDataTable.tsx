@@ -4,12 +4,16 @@ import {
   useIndexResourceState,
   Text,
   Box,
+  Button,
+  InlineStack,
 } from "@shopify/polaris";
 import { DeleteIcon } from "@shopify/polaris-icons";
 import React from "react";
 import { Supplier } from "../../interface";
 import CustomEmptyState from "../../components/CustomEmptyState";
-import SkeletonIndexTable, { SkeletonOnlyTable, SkeletonRowTableContent } from "../../components/Skeleton/skeleton-table";
+import { SkeletonRowTableContent } from "../../components/Skeleton/skeleton-table";
+import axios from "axios";
+import { SUPPLIER_API } from "../../constants/api";
 
 interface SupplierDataTableProps {
   suppliers: Supplier[];
@@ -23,10 +27,11 @@ interface SupplierDataTableProps {
   pagesNumber: number;
   setPagesNumber?: React.Dispatch<React.SetStateAction<number>>;
   fetchSuppliers: () => Promise<void>;
+  onViewSupplier: (id: number) => void;
 }
 
 function SupplierDataTable(props: SupplierDataTableProps) {
-  const { suppliers, setSuppliers, loading, setLoading, pageIndex, setPageIndex, pagesNumber, fetchSuppliers } = props;
+  const { suppliers, setSuppliers, loading, setLoading, pageIndex, setPageIndex, pagesNumber, fetchSuppliers, onViewSupplier} = props;
   const resourceName = {
     singular: "supplier",
     plural: "suppliers",
@@ -35,9 +40,11 @@ function SupplierDataTable(props: SupplierDataTableProps) {
   const { selectedResources, allResourcesSelected, handleSelectionChange, clearSelection, removeSelectedResources } =
     useIndexResourceState(suppliers);
 
+
   const rowMarkup = suppliers.map(
     ({ id, name, address, email, phoneNumber, createdAt }, index) => (
       <IndexTable.Row
+        onClick={() => onViewSupplier(id)}
         id={id.toString()}
         key={id.toString()}
         selected={selectedResources.includes(id.toString())}
@@ -57,18 +64,21 @@ function SupplierDataTable(props: SupplierDataTableProps) {
           </Box>
         </IndexTable.Cell>
         <IndexTable.Cell>{address}</IndexTable.Cell>
-        {/* <IndexTable.Cell>{createdAt}</IndexTable.Cell> */}
       </IndexTable.Row>
     )
   );
 
   const onDeleteRows = async () => {
     setLoading(true)
-    removeSelectedResources(selectedResources)
-    const _suppliers = suppliers.filter(supplier => !selectedResources.includes(supplier.id.toString()))
-    setSuppliers(_suppliers)
-    setPageIndex(0)
+
+    await Promise.all([
+      selectedResources.map(id => +id).forEach(id => {
+        axios.delete(`${SUPPLIER_API}/${id}`)
+      })
+    ])
+
     await fetchSuppliers()
+    removeSelectedResources(selectedResources)
     setLoading(false)
   }
 
@@ -88,7 +98,7 @@ function SupplierDataTable(props: SupplierDataTableProps) {
       <LegacyCard>
         <IndexTable
           resourceName={resourceName}
-          itemCount={suppliers.length}
+          itemCount={suppliers?.length}
           selectedItemsCount={
             allResourcesSelected ? "All" : selectedResources.length
           }
@@ -103,7 +113,6 @@ function SupplierDataTable(props: SupplierDataTableProps) {
               paddingBlockEnd: "400",
             },
             { title: "Địa chỉ" },
-            // { title: "Payment status" },
           ]}
           pagination={{
             hasNext: pageIndex < pagesNumber - 1,
