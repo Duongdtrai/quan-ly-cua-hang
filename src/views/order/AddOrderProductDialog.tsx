@@ -5,7 +5,6 @@ import {
   Form,
   FormLayout,
   Modal,
-  Grid,
 } from "@shopify/polaris";
 import axios from "axios";
 import { Category, OrderProduct, Product } from "../../interface";
@@ -41,7 +40,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
       );
       setProducts(response?.data?.data?.data);
       const newProducts = response?.data?.data?.data.filter(
-        (item: Product) => item.category.id == category
+        (item: Product) => item.category.id.toString() === category
       );
       setDisplayProducts(newProducts);
       setProduct(newProducts[0]);

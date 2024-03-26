@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
-  TextContainer,
   TextField,
   Select,
   DataTable,
@@ -10,7 +9,6 @@ import {
   Grid,
   TableData,
   ButtonGroup,
-  Card,
   Text,
   Box,
   Thumbnail,
@@ -20,7 +18,7 @@ import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
 import moment from "moment";
 import axios from "axios";
 import AddOrderProductDialog from "./AddOrderProductDialog";
-import { Order, OrderProduct, Product, Supplier } from "../../interface";
+import { Order, OrderProduct, Supplier } from "../../interface";
 
 interface Props {
   open: boolean;
@@ -136,7 +134,7 @@ const EditOrderDialog: React.FC<Props> = ({
       let isExist = false;
       const newOrderProducts = orderData?.orderProducts?.map(
         (item: OrderProduct) => {
-          if (item.product.id == data.product.id || item.id === id) {
+          if (item.product.id === data.product.id || item.id === id) {
             isExist = true;
             return data;
           }

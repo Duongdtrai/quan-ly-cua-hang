@@ -5,7 +5,6 @@ import {
   DataTable,
   Button,
   ButtonGroup,
-  InlineStack,
   Checkbox,
 } from "@shopify/polaris";
 import axios from "axios";
@@ -18,7 +17,7 @@ import { useModal } from "../../hook/useModal";
 import { EModal } from "../../constants";
 
 const OrdersPage = () => {
-  const { openModal, state: stateModal } = useModal();
+  const { openModal } = useModal();
   const [open, setOpen] = useState<boolean>(false);
   const [items, setItems] = useState<Array<Order>>([]);
   const [displayOrders, setDisplayOrders] = useState<Array<Order>>([]);
