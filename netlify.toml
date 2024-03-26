@@ -2,3 +2,13 @@
 from = "/*"
 to = "/index.html"
 status = 200
+
+[[headers]]
+  # Define which paths should have CORS headers applied
+  for = "/*"
+  # Specify the allowed origins (e.g., "*" for any origin, or specific origins)
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    # Additional CORS headers can be added if needed
+    # Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    # Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept"
