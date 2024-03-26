@@ -45,12 +45,13 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
       setDisplayProducts(newProducts);
       setProduct(newProducts[0]);
       setOrderProduct({
-        id: data?.id,
+        id: data.id,
         product: newProducts[0],
-        quantity: data?.quantity,
+        quantity: data.quantity,
       })
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
       if (!data) setCategory(response?.data?.data?.data[0].id.toString())
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangeQuantity = (value: string) => {

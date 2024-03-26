@@ -19,11 +19,11 @@ const EditProduct = () => {
   const [description, setDescription] = useState(product.description);
   const [category, setCategory] = useState(product.category);
 
-  const handleEditProduct = async () => {
-    // do ADD
+  // const handleEditProduct = async () => {
+  //   // do ADD
 
-    window.location.href = "/products";
-  };
+  //   window.location.href = "/products";
+  // };
 
   const handleDeleteProduct = async () => {
     // do DELETE

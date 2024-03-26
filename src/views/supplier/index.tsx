@@ -13,7 +13,7 @@ const SupplierPage = () => {
   const [isActiveAddModal, setIsActiveAddModal] = useState(false);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [pagesNumber, setPagesNumber] = useState(0);
   const [supplierData, setSupplierData] = useState<Supplier | undefined>();
   const [loadingModal, setLoadingModal] = useState(false);

@@ -74,6 +74,7 @@ const EditOrderDialog: React.FC<Props> = ({
 
   useEffect(() => {
     setTotalPrice(calcTotalPrice());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderData]);
 
   const convertDataToRow = (tableData: Order | undefined): TableData[][] => {
