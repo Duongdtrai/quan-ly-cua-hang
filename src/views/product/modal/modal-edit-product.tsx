@@ -83,6 +83,7 @@ const ModalEditProduct = () => {
       fetchCategory().then(() => setIsLoading(false));
       setProduct(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data[0]]);
 
   const [id] = data;
@@ -252,16 +253,16 @@ const ModalEditProduct = () => {
           product?.description,
           product?.category.id,
         ]) !==
-          JSON.stringify([
-            id,
-            name,
-            image,
-            category.name,
-            price,
-            quantity,
-            description,
-            category.id,
-          ])) ||
+        JSON.stringify([
+          id,
+          name,
+          image,
+          category.name,
+          price,
+          quantity,
+          description,
+          category.id,
+        ])) ||
       (data.length === 0 &&
         (name || image || category.name || price || quantity || description))
     ) {
@@ -358,7 +359,7 @@ const ModalEditProduct = () => {
                         >
                           {category.id
                             ? listCategory.find((c) => c.id === category.id)
-                                ?.name
+                              ?.name
                             : "Lọc theo loại mặt hàng"}
                         </Button>
                       }
