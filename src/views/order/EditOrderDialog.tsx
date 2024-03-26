@@ -37,6 +37,8 @@ const EditOrderDialog: React.FC<Props> = ({
 }) => {
   const [taxType, setTaxType] = useState<string>("5");
   const [showErr, setShowErr] = useState<boolean>(false);
+  const [showCodeErr, setShowCodeErr] = useState<boolean>(false);
+  const [showSupllierErr, setShowSupplierErr] = useState<boolean>(false);
   const [listSupplier, setListSupplier] = useState<Supplier[]>([]);
   const [totalPrice, setTotalPrice] = useState<number | undefined>(0);
   const [addProductDialog, setAddProductDialog] = useState<boolean>(false);
@@ -97,12 +99,14 @@ const EditOrderDialog: React.FC<Props> = ({
             icon={EditIcon}
             onClick={() => handleClickEdit(item)}
             id="edit-order-product-btn"
+            disabled={orderData?.status}
           />
           <Button
             icon={DeleteIcon}
             tone="critical"
             onClick={() => handleClickDelete(item)}
             id="delete-order-product-btn"
+            disabled={orderData?.status}
           />
         </ButtonGroup>
       </div>,
@@ -173,11 +177,28 @@ const EditOrderDialog: React.FC<Props> = ({
     setAddProductDialog(true);
   };
 
-  const handleSubmit = async () => {
+  const validate = (): boolean => {
+    let check = true;
     if (orderData?.orderProducts?.length === 0) {
       setShowErr(true);
-      return;
+      check = false;
     }
+
+    if (orderData?.code.length === 0) {
+      setShowCodeErr(true);
+      check = false;
+    }
+
+    if (!orderData?.supplier?.id) {
+      setShowSupplierErr(true);
+      check = false;
+    }
+    return check;
+  }
+
+  const handleSubmit = async () => {
+    if(!validate()) return;
+
     const newData = orderData?.orderProducts?.map((product: OrderProduct) => {
       return {
         id: product.product.id,
@@ -258,8 +279,9 @@ const EditOrderDialog: React.FC<Props> = ({
         open={open}
         onClose={() => setOpen(false)}
         primaryAction={{
-          content: "Lưu",
+          content: orderData?.status ? "Đơn hàng đã thanh toán" : "Lưu",
           onAction: handleSubmit,
+          disabled: orderData?.status
         }}
         secondaryActions={[
           {
@@ -288,25 +310,39 @@ const EditOrderDialog: React.FC<Props> = ({
                       label="Mã vận đơn"
                       type="text"
                       value={orderData?.code}
-                      onChange={(e) => setOrderData({ ...orderData, code: e })}
+                      onChange={(e) => {
+                        setOrderData({ ...orderData, code: e });
+                        setShowCodeErr(false);
+                      }}
                       autoComplete="off"
                       id="delivery-code"
+                      disabled={orderData?.status}
+                      requiredIndicator
                     />
+                    {showCodeErr && <Text tone="critical" as="p">Vui lòng nhập mã vận đơn</Text>}
                   </Grid.Cell>
                 </Grid>
-                <Select
-                  id="supplier-select"
-                  label="Nhà cung cấp"
-                  options={listSupplier.map((item: Supplier) => {
-                    return {
-                      label: item.name || "",
-                      value: item.id.toString(),
-                    };
-                  })}
-                  value={supplier}
-                  onChange={(value) => handleChangeSupplier(value)}
-                  placeholder="Chọn nhà cung cấp"
-                />
+                <div>
+                  <Select
+                    disabled={orderData?.status}
+                    id="supplier-select"
+                    label="Nhà cung cấp"
+                    options={listSupplier.map((item: Supplier) => {
+                      return {
+                        label: item.name || "",
+                        value: item.id.toString(),
+                      };
+                    })}
+                    value={supplier}
+                    onChange={(value) => {
+                      handleChangeSupplier(value);
+                      setShowSupplierErr(false);
+                    }}
+                    placeholder="Chọn nhà cung cấp"
+                    requiredIndicator
+                  />
+                  {showSupllierErr && <Text tone="critical" as="p">Vui lòng chọn nhà cung cấp</Text>}
+                </div>
                 <TextField
                   id="note"
                   label="Ghi chú"
@@ -316,6 +352,7 @@ const EditOrderDialog: React.FC<Props> = ({
                   autoComplete="off"
                   maxLength={200}
                   showCharacterCount
+                  disabled={orderData?.status}
                 />
               </FormLayout>
             </Grid.Cell>
@@ -345,6 +382,7 @@ const EditOrderDialog: React.FC<Props> = ({
                     },
                   ]}
                   onChange={(e) => setTaxType(e)}
+                  disabled={orderData?.status}
                 />
               </div>
               <div style={{ marginBottom: "15px" }}>
@@ -374,6 +412,7 @@ const EditOrderDialog: React.FC<Props> = ({
             <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
               <InlineStack gap="400">
                 <Button
+                  disabled={orderData?.status}
                   onClick={() => {
                     setAddProductDialog(true);
                     setOrderProduct(undefined);
