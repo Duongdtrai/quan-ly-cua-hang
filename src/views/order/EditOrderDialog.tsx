@@ -150,8 +150,8 @@ const EditOrderDialog: React.FC<Props> = ({
           id || isExist
             ? newOrderProducts
             : orderData
-            ? [...(orderData?.orderProducts as Array<OrderProduct>), data]
-            : [data],
+              ? [...(orderData?.orderProducts as Array<OrderProduct>), data]
+              : [data],
       });
     } else {
       alert("Vui lòng điền đầy đủ thông tin");

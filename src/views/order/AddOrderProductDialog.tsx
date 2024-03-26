@@ -47,7 +47,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
       setProduct(newProducts[0]);
       setOrderProduct({
         id: data?.id,
-        product: newProducts[0],  
+        product: newProducts[0],
         quantity: data?.quantity,
       })
     };
@@ -84,7 +84,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
     );
     if (selectedProduct) {
       setProduct(selectedProduct);
-      setOrderProduct({ ...orderProduct, product: selectedProduct});
+      setOrderProduct({ ...orderProduct, product: selectedProduct });
     }
   };
 
