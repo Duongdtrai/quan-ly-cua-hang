@@ -23,22 +23,22 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route
-                path="/quan-ly-cua-hang/suppliers"
+                path="/suppliers"
                 element={<SupplierPage />}
               />
               <Route
-                path="/quan-ly-cua-hang/products"
+                path="/products"
                 element={<ProductPage />}
               />
               <Route
-                path="/quan-ly-cua-hang/product/add"
+                path="/product/add"
                 element={<AddProduct />}
               />
               <Route
-                path="/quan-ly-cua-hang/product/:id"
+                path="/product/:id"
                 element={<EditProduct />}
               />
-              <Route path="/quan-ly-cua-hang/orders" element={<OrdersPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
               <Route path="*" element={<Home />} />
             </Routes>
           </Suspense>

@@ -32,15 +32,15 @@ const defaultTable: {
   type: "text" | "numeric";
   sortable: boolean;
 }[] = [
-  { heading: "", type: "text", sortable: false },
-  { heading: "Id", type: "text", sortable: true },
-  { heading: "Tên mặt hàng", type: "text", sortable: true },
-  { heading: "Hình ảnh", type: "text", sortable: false },
-  { heading: "Loại", type: "text", sortable: false },
-  { heading: "Giá niêm yết", type: "numeric", sortable: true },
-  { heading: "Số lượng còn lại", type: "numeric", sortable: true },
-  { heading: "Mô tả", type: "text", sortable: false },
-];
+    { heading: "", type: "text", sortable: false },
+    { heading: "Id", type: "text", sortable: true },
+    { heading: "Tên mặt hàng", type: "text", sortable: true },
+    { heading: "Hình ảnh", type: "text", sortable: false },
+    { heading: "Loại", type: "text", sortable: false },
+    { heading: "Giá niêm yết", type: "numeric", sortable: true },
+    { heading: "Số lượng còn lại", type: "numeric", sortable: true },
+    { heading: "Mô tả", type: "text", sortable: false },
+  ];
 
 const formatToDataTable = (products: Product[]): TableData[][] => {
   return products
@@ -87,8 +87,8 @@ const formatToTableRow = (
         onChange={(v: boolean) => {
           !v
             ? setSelectedRows((prev: any) =>
-                prev.filter((rowId: any) => rowId !== id)
-              )
+              prev.filter((rowId: any) => rowId !== id)
+            )
             : setSelectedRows((prev: any) => [...prev, id]);
         }}
       />,
@@ -180,8 +180,8 @@ const ProductsListing = () => {
           setSelectedRows((prev: number[]) =>
             prev.find((rowId: any) => rowId === filteredRows[index][0])
               ? prev.filter(
-                  (rowId: any) => rowId !== Number(filteredRows[index][0])
-                )
+                (rowId: any) => rowId !== Number(filteredRows[index][0])
+              )
               : [...prev, Number(filteredRows[index][0])]
           );
         }
@@ -201,7 +201,7 @@ const ProductsListing = () => {
       fullWidth
       title="Quản lý mặt hàng"
       backAction={{
-        onAction: () => navigate("/quan-ly-cua-hang"),
+        onAction: () => navigate("/"),
       }}
       primaryAction={{
         content: "Thêm mặt hàng",
@@ -365,13 +365,13 @@ const sortTable = (
       return [...rows].sort((a: any, b: any) => {
         return direction === "ascending"
           ? a[1]
-              ?.toString()
-              .toLowerCase()
-              .localeCompare(b[1]?.toString().toLowerCase())
+            ?.toString()
+            .toLowerCase()
+            .localeCompare(b[1]?.toString().toLowerCase())
           : b[1]
-              ?.toString()
-              .toLowerCase()
-              .localeCompare(a[1]?.toString().toLowerCase());
+            ?.toString()
+            .toLowerCase()
+            .localeCompare(a[1]?.toString().toLowerCase());
       });
     }
 

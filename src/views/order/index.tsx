@@ -53,8 +53,8 @@ const OrdersPage = () => {
         onChange={(v: boolean) => {
           !v
             ? setSelectedRows((prev: any) =>
-                prev.filter((rowId: any) => rowId !== item.id)
-              )
+              prev.filter((rowId: any) => rowId !== item.id)
+            )
             : setSelectedRows((prev: any) => [...prev, item.id]);
         }}
       />,
@@ -109,7 +109,7 @@ const OrdersPage = () => {
   return (
     <Page
       backAction={{
-        onAction: () => navigate("/quan-ly-cua-hang"),
+        onAction: () => navigate("/"),
       }}
       title="Quản lý đơn hàng"
       primaryAction={{

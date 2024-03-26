@@ -65,7 +65,7 @@ const SupplierPage = () => {
 
   return (
     <Page
-      backAction={{ content: "supplier_back", url: "/quan-ly-cua-hang" }}
+      backAction={{ content: "supplier_back", url: "/" }}
       title="Quản lý nhà cung cấp"
       primaryAction={{
         content: "Thêm nhà cung cấp",

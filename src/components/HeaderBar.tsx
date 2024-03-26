@@ -14,10 +14,10 @@ import { Link } from "react-router-dom";
 import { Text } from "@shopify/polaris";
 
 const pages = [
-  { name: "Trang chủ", path: "/quan-ly-cua-hang" },
-  { name: "Mặt hàng", path: "/quan-ly-cua-hang/products" },
-  { name: "Đơn nhập hàng", path: "/quan-ly-cua-hang/orders" },
-  { name: "Nhà cung cấp", path: "/quan-ly-cua-hang/suppliers" },
+  { name: "Trang chủ", path: "/" },
+  { name: "Mặt hàng", path: "/products" },
+  { name: "Đơn nhập hàng", path: "/orders" },
+  { name: "Nhà cung cấp", path: "/suppliers" },
 ];
 const settings = ["Trang cá nhân", "Tài khoản", "Đăng xuất"];
 
