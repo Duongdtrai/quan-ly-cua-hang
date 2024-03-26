@@ -47,6 +47,5 @@ export interface Supplier {
 export interface OrderProduct {
   id: number;
   quantity: number;
-  tax: number;
   product: Product;
 }
