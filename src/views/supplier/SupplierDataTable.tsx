@@ -4,8 +4,6 @@ import {
   useIndexResourceState,
   Text,
   Box,
-  Button,
-  InlineStack,
 } from "@shopify/polaris";
 import { DeleteIcon } from "@shopify/polaris-icons";
 import React from "react";
@@ -31,13 +29,13 @@ interface SupplierDataTableProps {
 }
 
 function SupplierDataTable(props: SupplierDataTableProps) {
-  const { suppliers, setSuppliers, loading, setLoading, pageIndex, setPageIndex, pagesNumber, fetchSuppliers, onViewSupplier} = props;
+  const { suppliers, loading, setLoading, pageIndex, setPageIndex, pagesNumber, fetchSuppliers, onViewSupplier} = props;
   const resourceName = {
     singular: "supplier",
     plural: "suppliers",
   };
 
-  const { selectedResources, allResourcesSelected, handleSelectionChange, clearSelection, removeSelectedResources } =
+  const { selectedResources, allResourcesSelected, handleSelectionChange, removeSelectedResources } =
     useIndexResourceState(suppliers);
 
 
