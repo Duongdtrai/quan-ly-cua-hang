@@ -12,7 +12,6 @@ import axios from "axios";
 import moment from "moment";
 import { Order } from "../../interface";
 import EditOrderDialog from "./EditOrderDialog";
-import ConfirmationDialog from "../../components/Dialog/ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import ModalDeleteProduct from "../product/modal/modal-delete-product";
 import { useModal } from "../../hook/useModal";
@@ -21,7 +20,6 @@ import { EModal } from "../../constants";
 const OrdersPage = () => {
   const { openModal, state: stateModal } = useModal();
   const [open, setOpen] = useState<boolean>(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const [items, setItems] = useState<Array<Order>>([]);
   const [displayOrders, setDisplayOrders] = useState<Array<Order>>([]);
   const [order, setOrder] = useState<any>();
@@ -173,7 +171,7 @@ const OrdersPage = () => {
             disabled={selectedRows.length > 1}
             onClick={handleEditItem}
           >
-            Sửa sản phẩm
+            Sửa đơn hàng
           </Button>
           <Button
             variant="primary"
@@ -184,7 +182,7 @@ const OrdersPage = () => {
               })
             }}
           >
-            Xoá sản phẩm
+            Xoá đơn hàng
           </Button>
         </div>
       )}
@@ -194,6 +192,7 @@ const OrdersPage = () => {
           open={open}
           setOpen={setOpen}
           fetchData={fetchData}
+          setSelectedRows={setSelectedRows}
         />
       )}
       <ModalDeleteProduct
