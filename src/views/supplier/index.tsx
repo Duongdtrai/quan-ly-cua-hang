@@ -6,6 +6,7 @@ import axios from "axios";
 import { SUPPLIER_API } from "../../constants/api";
 import { Supplier } from "../../interface";
 import SkeletonIndexTable from "../../components/Skeleton/skeleton-table";
+import { useDocument } from "../../hook/useDocument";
 
 const SupplierPage = () => {
   const [initTable, setInitTable] = useState(true);
@@ -20,6 +21,8 @@ const SupplierPage = () => {
 
   const onDismissAddModal = () => setIsActiveAddModal(false);
   const onOpenAddModal = () => setIsActiveAddModal(true);
+
+  useDocument("Quản lý nhà cung cấp");
 
   const fetchSuppliers = useCallback(async () => {
     await axios
@@ -62,7 +65,7 @@ const SupplierPage = () => {
 
   return (
     <Page
-      backAction={{ content: "supplier_back", url: "/" }}
+      backAction={{ content: "supplier_back", url: "/quan-ly-cua-hang" }}
       title="Quản lý nhà cung cấp"
       primaryAction={{
         content: "Thêm nhà cung cấp",
