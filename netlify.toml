@@ -9,3 +9,9 @@ status = 200
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Headers = "Content-Type"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://54.199.68.197:8081/:splat"
+  status = 200
+  force = true
