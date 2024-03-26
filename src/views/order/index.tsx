@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import ModalDeleteProduct from "../product/modal/modal-delete-product";
 import { useModal } from "../../hook/useModal";
 import { EModal } from "../../constants";
+import { useDocument } from "../../hook/useDocument";
 
 const OrdersPage = () => {
   const { openModal } = useModal();
@@ -25,6 +26,8 @@ const OrdersPage = () => {
   const [page, setPage] = useState<number>(0);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const itemsPerPage = 10;
+
+  useDocument("Quản lý đơn nhập hàng");
 
   const navigate = useNavigate();
 
@@ -67,7 +70,9 @@ const OrdersPage = () => {
 
   const fetchData = () => {
     axios
-      .get("http://54.199.68.197:8081/api/v1/orders", {params: {page: 0, size: 10000}})
+      .get("http://54.199.68.197:8081/api/v1/orders", {
+        params: { page: 0, size: 10000 },
+      })
       .then((res) => {
         if (res.status === 200) {
           const orderList = res?.data?.data?.data;
@@ -88,7 +93,7 @@ const OrdersPage = () => {
   };
 
   const handleEditItem = () => {
-    const item = items.find(item => item.id === selectedRows[0]);
+    const item = items.find((item) => item.id === selectedRows[0]);
     setOrder(item);
     setOpen(true);
   };
@@ -178,7 +183,7 @@ const OrdersPage = () => {
             onClick={() => {
               openModal(EModal.MODAL_DELETE_PRODUCT, {
                 data: { selectedRows, setSelectedRows },
-              })
+              });
             }}
           >
             Xoá đơn hàng

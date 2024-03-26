@@ -1,6 +1,9 @@
 import { Badge, Card, Page } from "@shopify/polaris";
+import { useDocument } from "../../hook/useDocument";
 
 export default function ProductPage() {
+  useDocument("Quản lý mặt hàng");
+
   return (
     <Page
       backAction={{ content: "Products", url: "#" }}
