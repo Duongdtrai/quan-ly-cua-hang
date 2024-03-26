@@ -19,14 +19,27 @@ function App() {
       <Router>
         <div>
           <HeaderBar />
-          <Suspense fallback={<CustomSkeletonPage/>}>
+          <Suspense fallback={<CustomSkeletonPage />}>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/suppliers" element={<SupplierPage/>}/>
-              <Route path="/products" element={<ProductPage />} />
-              <Route path="/product/add" element={<AddProduct />} />
-              <Route path="/product/:id" element={<EditProduct />} />
-              <Route path="/orders" element={<OrdersPage />} />
+              <Route
+                path="/quan-ly-cua-hang/suppliers"
+                element={<SupplierPage />}
+              />
+              <Route
+                path="/quan-ly-cua-hang/products"
+                element={<ProductPage />}
+              />
+              <Route
+                path="/quan-ly-cua-hang/product/add"
+                element={<AddProduct />}
+              />
+              <Route
+                path="/quan-ly-cua-hang/product/:id"
+                element={<EditProduct />}
+              />
+              <Route path="/quan-ly-cua-hang/orders" element={<OrdersPage />} />
+              <Route path="*" element={<Home />} />
             </Routes>
           </Suspense>
         </div>

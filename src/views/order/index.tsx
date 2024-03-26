@@ -109,7 +109,7 @@ const OrdersPage = () => {
   return (
     <Page
       backAction={{
-        onAction: () => navigate("/"),
+        onAction: () => navigate("/quan-ly-cua-hang"),
       }}
       title="Quản lý đơn hàng"
       primaryAction={{

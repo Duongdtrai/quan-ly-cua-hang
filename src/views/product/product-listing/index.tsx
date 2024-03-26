@@ -201,7 +201,7 @@ const ProductsListing = () => {
       fullWidth
       title="Quản lý mặt hàng"
       backAction={{
-        onAction: () => navigate("/"),
+        onAction: () => navigate("/quan-ly-cua-hang"),
       }}
       primaryAction={{
         content: "Thêm mặt hàng",

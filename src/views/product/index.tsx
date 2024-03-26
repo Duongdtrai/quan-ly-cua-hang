@@ -6,7 +6,7 @@ export default function ProductPage() {
 
   return (
     <Page
-      backAction={{ content: "Products", url: "#" }}
+      backAction={{ content: "Products", url: "/quan-ly-cua-hang" }}
       title="3/4 inch Leather pet collar"
       titleMetadata={<Badge tone="success">Paid</Badge>}
       subtitle="Perfect for any pet"
