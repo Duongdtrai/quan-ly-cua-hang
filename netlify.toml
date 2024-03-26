@@ -15,3 +15,5 @@ status = 200
   to = "http://54.199.68.197:8081/:splat"
   status = 200
   force = true
+  headers = {X-From = "Netlify"}
+  signed = "API_SIGNATURE_TOKEN"
