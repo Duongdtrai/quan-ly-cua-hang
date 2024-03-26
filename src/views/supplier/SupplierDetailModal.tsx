@@ -1,9 +1,6 @@
 import {
-  Box,
-  Button,
   Form,
   FormLayout,
-  InlineStack,
   Modal,
   TextField,
 } from "@shopify/polaris";

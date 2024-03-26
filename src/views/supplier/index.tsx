@@ -1,6 +1,5 @@
 import { Page } from "@shopify/polaris";
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import SupplierDetailModal from "./SupplierDetailModal";
 import SupplierDataTable from "./SupplierDataTable";
 import axios from "axios";
@@ -9,7 +8,6 @@ import { Supplier } from "../../interface";
 import SkeletonIndexTable from "../../components/Skeleton/skeleton-table";
 
 const SupplierPage = () => {
-  const navigate = useNavigate();
   const [initTable, setInitTable] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isActiveAddModal, setIsActiveAddModal] = useState(false);
