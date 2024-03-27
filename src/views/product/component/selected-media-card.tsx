@@ -9,6 +9,7 @@ import {
 } from "@shopify/polaris";
 import { DeleteIcon, ImageIcon } from "@shopify/polaris-icons";
 import { memo } from "react";
+import { ECloudinary } from "../../../constants";
 
 interface ISelectedMediaCard {
   imageUrl: string;
@@ -16,8 +17,35 @@ interface ISelectedMediaCard {
   setImage: Function;
 }
 
+
+
 export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
   const { imageUrl, filename, setImage } = props;
+
+
+
+  const handleUpload = async (file: any) => {
+    console.log("Duog")
+    const formData = new FormData();
+    formData.append('file', file);
+    // formData.append('upload_preset', ECloudinary.CLOUDINARY_UPLOAD_PRESET); // Set your upload preset
+
+    const cloudName = ECloudinary.CLOUDINARY_CLOUD_NAME; // Replace with your Cloudinary cloud name
+    const apiKey = ECloudinary.CLOUDINARY_API_KEY; // Replace with your Cloudinary API key
+    const apiSecret = ECloudinary.CLOUDINARY_API_SECRET; // Replace with your Cloudinary API secret
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Authorization': `Basic ${btoa(`${apiKey}:${apiSecret}`)}` // Encode API key and secret correctly
+      }
+    });
+
+    const data = await response.json();
+    console.log(data);
+    setImage(data.secure_url);
+  };
 
   return (
     <Box
@@ -62,9 +90,9 @@ export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
             style={{ display: "none" }}
             accept="image/gif, image/jpg ,image/jpeg, image/png"
             multiple={false}
-            onChange={(e) => {
-              const url = URL.createObjectURL((e.target.files as any)[0]);
-              setImage(url);
+            onChange={(e: any) => {
+              const file = e.target.files[0];
+              handleUpload(file);
             }}
           />
           <label
