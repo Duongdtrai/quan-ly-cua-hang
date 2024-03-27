@@ -9,5 +9,5 @@ export enum ECloudinary {
   CLOUDINARY_CLOUD_NAME = "ptd",
   CLOUDINARY_API_KEY = "151112439555433",
   CLOUDINARY_API_SECRET = "qyg4I25IzyoC7AGE7VI5X9MW-og",
-  CLOUDINARY_UPLOAD_PRESET = "dambaochatluongphanmem",
+  CLOUDINARY_UPLOAD_PRESET = "cpfzdjwo",
 }
