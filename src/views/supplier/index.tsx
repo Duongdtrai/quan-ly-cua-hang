@@ -25,8 +25,6 @@ const SupplierPage = () => {
   useDocument("Quản lý nhà cung cấp");
 
   const fetchSuppliers = useCallback(async () => {
-    console.log('reload');
-    
     pageIndex >= 0 &&
       await axios
       .get(`${SUPPLIER_API}?page=${pageIndex}&size=${pageSize}`)
@@ -58,7 +56,6 @@ const SupplierPage = () => {
   };
 
   useEffect(() => {
-    console.log("render");
     setLoading(true);
     fetchSuppliers().then(() => {
       setLoading(false);

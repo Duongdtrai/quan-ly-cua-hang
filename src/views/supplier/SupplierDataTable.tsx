@@ -98,7 +98,7 @@ function SupplierDataTable(props: SupplierDataTableProps) {
   if (!loading && suppliers.length === 0) return <CustomEmptyState />;
 
   return (
-    <Box paddingBlockEnd="400">
+    <Box paddingBlockEnd="400" id="supplier--data--table--box">
       <LegacyCard>
         <IndexTable
           resourceName={resourceName}

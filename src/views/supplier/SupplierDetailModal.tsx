@@ -175,7 +175,6 @@ const SupplierDetailModal = ({
         content: supplier ? "Cập nhật" : "Thêm",
         onAction: onSubmit,
         id: 'supplier--modal--submit',
-        
       }}
       secondaryActions={[
         {
@@ -189,6 +188,7 @@ const SupplierDetailModal = ({
         <Form onSubmit={onSubmit}>
           <FormLayout>
             <TextField
+              id="supplier--name--input"
               clearButton
               onClearButtonClick={onClearName}
               inputMode="text"
@@ -201,6 +201,7 @@ const SupplierDetailModal = ({
               error={nameError}
             />
              <TextField
+              id="supplier-tax--code--input"
               clearButton
               onClearButtonClick={onClearTaxCode}
               inputMode="text"
@@ -213,6 +214,7 @@ const SupplierDetailModal = ({
               error={taxCodeError}
             />
             <TextField
+              id="supplier--email--input"
               placeholder="me@example.com"
               clearButton
               onClearButtonClick={onClearEmail}
@@ -226,6 +228,7 @@ const SupplierDetailModal = ({
               error={emailError}
             />
             <TextField
+              id="supplier--phone--input"
               clearButton
               onClearButtonClick={onClearPhoneNumber}
               inputMode="tel"
@@ -238,6 +241,7 @@ const SupplierDetailModal = ({
               error={phoneNumberError}
             />
             <TextField
+              id="supplier--address--input"
               clearButton
               onClearButtonClick={onClearAddress}
               inputMode="text"
@@ -250,6 +254,7 @@ const SupplierDetailModal = ({
               error={addressError}
             />
             <TextField
+              id="supplier--note--input"
               clearButton
               onClearButtonClick={onClearNotes}
               showCharacterCount
