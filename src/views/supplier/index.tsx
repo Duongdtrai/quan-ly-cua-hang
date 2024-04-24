@@ -25,7 +25,10 @@ const SupplierPage = () => {
   useDocument("Quản lý nhà cung cấp");
 
   const fetchSuppliers = useCallback(async () => {
-    await axios
+    console.log('reload');
+    
+    pageIndex >= 0 &&
+      await axios
       .get(`${SUPPLIER_API}?page=${pageIndex}&size=${pageSize}`)
       .then((response) => response.data)
       .then((response) => response.data)

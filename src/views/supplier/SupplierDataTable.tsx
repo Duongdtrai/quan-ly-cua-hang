@@ -69,11 +69,17 @@ function SupplierDataTable(props: SupplierDataTableProps) {
   const onDeleteRows = async () => {
     setLoading(true)
 
-    await Promise.all([
-      selectedResources.map(id => +id).forEach(id => {
-        axios.delete(`${SUPPLIER_API}/${id}`)
-      })
-    ])
+    const deletePromises = selectedResources.map(id => {
+      return axios.delete(`${SUPPLIER_API}/${id}`)
+    })
+  
+    await Promise.all(deletePromises);
+    
+    // await Promise.all([
+    //   selectedResources.map(id => +id).forEach(id => {
+    //     axios.delete(`${SUPPLIER_API}/${id}`)
+    //   })
+    // ])
 
     await fetchSuppliers()
     removeSelectedResources(selectedResources)

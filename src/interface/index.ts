@@ -42,6 +42,7 @@ export interface Supplier {
   address: string | undefined;
   note: string | undefined;
   [key: string]: unknown;
+  taxCode: string | undefined;
 }
 
 export interface OrderProduct {

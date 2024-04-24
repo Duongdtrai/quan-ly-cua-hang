@@ -32,24 +32,28 @@ const SupplierDetailModal = ({
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [note, setNote] = useState<string>('');
   const [address, setAddress] = useState<string>('');
+  const [taxCode, setTaxCode] = useState<string>('');
   const [nameError, setNameError] = useState<string>('');
   const [emailError, setEmailError] = useState<string>('');
   const [phoneNumberError, setPhoneNumberError] = useState<
     string
   >('');
   const [addressError, setAddressError] = useState<string>('');
+  const [taxCodeError, setTaxCodeError] = useState<string>('');
 
   const onChangeName = (value: string) => setName(value);
   const onChangeEmail = (value: string) => setEmail(value);
   const onChangePhoneNumber = (value: string) => setPhoneNumber(value);
   const onChangeNotes = (value: string) => setNote(value);
   const onChangeAddress = (value: string) => setAddress(value);
+  const onChangeTaxCode = (value: string) => setTaxCode(value);
 
   const onClearName = () => setName('');
   const onClearEmail = () => setEmail('');
   const onClearPhoneNumber = () => setPhoneNumber('');
   const onClearNotes = () => setNote('');
   const onClearAddress = () => setAddress('');
+  const onClearTaxCode = () => setTaxCode('');
 
   const resetForm = () => {
     setSupplier(undefined)
@@ -62,6 +66,7 @@ const SupplierDetailModal = ({
     setEmailError('');
     setPhoneNumberError('');
     setAddressError('');
+    setTaxCode('');
   };
 
   const onCancel = () => {
@@ -83,6 +88,14 @@ const SupplierDetailModal = ({
     }
     else {
       setNameError('')
+    }
+
+    if (!taxCode || taxCode.trim() === '') {
+      isValid = false
+      setTaxCodeError("Vui lòng điền mã số thuế");
+    }
+    else {
+      setTaxCodeError('')
     }
 
     if (!phoneNumber || phoneNumber.trim() === '') {
@@ -127,11 +140,14 @@ const SupplierDetailModal = ({
       phoneNumber,
       address,
       note,
+      taxCode
     };
 
-    const response = supplier ? await axios.put(`${SUPPLIER_API}/${supplier.id}`, _supplier) : await axios.post(SUPPLIER_API, _supplier);
+    const response = supplier 
+      ? await axios.put(`${SUPPLIER_API}/${supplier.id}`, _supplier) 
+      : await axios.post(SUPPLIER_API, _supplier);
     if (response.status === 200) {
-      await fetchSuppliers()      
+      await fetchSuppliers();      
       onDismiss();
       resetForm();
     } else {
@@ -145,6 +161,7 @@ const SupplierDetailModal = ({
     setAddress(supplier?.address || '');
     setPhoneNumber(supplier?.phoneNumber || '');
     setNote(supplier?.note || '');
+    setTaxCode(supplier?.taxCode || '');
   }, [supplier])
 
   return (
@@ -182,6 +199,18 @@ const SupplierDetailModal = ({
               onChange={onChangeName}
               autoComplete="off"
               error={nameError}
+            />
+             <TextField
+              clearButton
+              onClearButtonClick={onClearTaxCode}
+              inputMode="text"
+              requiredIndicator
+              label="Mã số thuế"
+              type="text"
+              value={taxCode}
+              onChange={onChangeTaxCode}
+              autoComplete="off"
+              error={taxCodeError}
             />
             <TextField
               placeholder="me@example.com"
