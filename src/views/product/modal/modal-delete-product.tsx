@@ -3,12 +3,14 @@ import { useModal } from "../../../hook/useModal";
 import { EModal } from "../../../constants";
 import { useState } from "react";
 import axios from "axios";
+import { HOST } from "../../../constants/api";
 
 const ModalDeleteProduct = ({
   selectedRows = [],
   setSelectedRows = () => {},
   type
 }: {
+  id: string;
   selectedRows: number[];
   setSelectedRows: Function;
   type: string;
@@ -18,7 +20,7 @@ const ModalDeleteProduct = ({
 
   const handleDeleteProduct = async (id: number) => {
     await axios
-      .delete(`http://54.199.68.197:8081/api/v1/${type}/${id}`)
+      .delete(`${HOST}/${type}/${id}`)
       .then((res) => console.log(res))
       .catch((e) => console.log(e));
 

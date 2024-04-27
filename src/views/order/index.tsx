@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Page,
   Card,
@@ -6,6 +6,10 @@ import {
   Button,
   ButtonGroup,
   Checkbox,
+  Popover,
+  InlineStack,
+  BlockStack,
+  ChoiceList,
 } from "@shopify/polaris";
 import axios from "axios";
 import moment from "moment";
@@ -16,15 +20,19 @@ import ModalDeleteProduct from "../product/modal/modal-delete-product";
 import { useModal } from "../../hook/useModal";
 import { EModal } from "../../constants";
 import { useDocument } from "../../hook/useDocument";
+import { ORDER_API } from "../../constants/api";
 
 const OrdersPage = () => {
   const { openModal } = useModal();
   const [open, setOpen] = useState<boolean>(false);
+  const [activePopover, setActivePopover] = useState<boolean>(false);
+
   const [items, setItems] = useState<Array<Order>>([]);
-  const [displayOrders, setDisplayOrders] = useState<Array<Order>>([]);
-  const [order, setOrder] = useState<any>();
-  const [page, setPage] = useState<number>(0);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
+  const [order, setOrder] = useState<any>();
+  const [status, setStatus] = useState<string[]>(['false']);
+  const [page, setPage] = useState<number>(0);
   const itemsPerPage = 10;
 
   useDocument("Quản lý đơn nhập hàng");
@@ -43,6 +51,7 @@ const OrdersPage = () => {
   const formatToRowData = (data: Order[]) => {
     return data.map((item: Order, index: number) => [
       <Checkbox
+        id={`product${item.id}--checkbox`}
         name=""
         value=""
         label=""
@@ -61,7 +70,7 @@ const OrdersPage = () => {
       <div style={{ textAlign: "center" }}>
         {page * itemsPerPage + index + 1}
       </div>,
-      <div style={{ textAlign: "center" }}>{item.id}</div>,
+      <div style={{ textAlign: "center" }}>{item.code}</div>,
       moment(item.createdAt).format("YYYY-MM-DD"),
       item.supplier.name,
       item.status ? "Đã thanh toán" : "Chưa thanh toán",
@@ -70,14 +79,13 @@ const OrdersPage = () => {
 
   const fetchData = () => {
     axios
-      .get("http://54.199.68.197:8081/api/v1/orders", {
-        params: { page: 0, size: 10000 },
+      .get(ORDER_API, {
+        params: { page: page, size: itemsPerPage, status: status[0] },
       })
       .then((res) => {
         if (res.status === 200) {
           const orderList = res?.data?.data?.data;
           setItems(orderList);
-          setDisplayOrders(orderList.slice(0, itemsPerPage));
         }
       })
       .catch((e) => console.error(e));
@@ -85,7 +93,11 @@ const OrdersPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [open, page, selectedRows]);
+  }, [open, page, selectedRows, status]);
+
+  const handleChangeStatus = useCallback((value: string[]) => {
+    setStatus(value);
+  }, []);
 
   const handleAddItem = () => {
     setOrder(undefined);
@@ -98,13 +110,15 @@ const OrdersPage = () => {
     setOpen(true);
   };
 
-  const handleChangePage = (event: number) => {
-    const newPage = page + event;
-    setPage(newPage);
-    setDisplayOrders(
-      items.slice(newPage * itemsPerPage, (newPage + 1) * itemsPerPage)
-    );
-  };
+  const handleConfirmPayment = async () => {
+    const orders = selectedRows.map(id => {
+      return axios.put(`${ORDER_API}/${id}/pay`);
+    })
+  
+    await Promise.all(orders);
+    setSelectedRows([]);
+    fetchData();
+  }
 
   return (
     <Page
@@ -118,37 +132,68 @@ const OrdersPage = () => {
       }}
       fullWidth
     >
-      <div style={{ marginBottom: "20px" }}>
-        <Button
-          onClick={() => setSelectedRows([])}
-          disabled={!selectedRows.length}
-        >
-          Bỏ chọn
-        </Button>
-      </div>
-      <Card>
-        <DataTable
-          columnContentTypes={["text", "text", "text", "text", "text"]}
-          headings={headings}
-          rows={formatToRowData(displayOrders)}
-          truncate
-        />
-      </Card>
+      <BlockStack gap={"400"}>
+        <InlineStack gap={"400"} blockAlign="center">
+          <Button
+            id="cancel--select--button"
+            onClick={() => setSelectedRows([])}
+            disabled={!selectedRows.length}
+          >
+            Bỏ chọn
+          </Button>
+          <Popover
+            active={activePopover}
+            preferredAlignment="left"
+            preferredPosition="below"
+            activator={
+              <Button
+                id="active--popover--button"
+                onClick={() => setActivePopover((prev) => !prev)}
+                disclosure
+              >
+                Lọc theo trạng thái
+              </Button>
+            }
+            onClose={() => setActivePopover((prev) => !prev)}
+            ariaHaspopup={false}
+            >
+              <div style={{width: '145px', padding: '10px'}}>
+                <ChoiceList
+                  title=""
+                  choices={[
+                    {label: 'Đã thanh toán', value: 'true'},
+                    {label: 'Chưa thanh toán', value: 'false'},
+                  ]}
+                  selected={status}
+                  onChange={handleChangeStatus}
+                />
+              </div>
+            </Popover>
+        </InlineStack>
+        <Card>
+          <DataTable
+            columnContentTypes={["text", "text", "text", "text", "text"]}
+            headings={headings}
+            rows={formatToRowData(items)}
+            truncate
+          />
+        </Card>
+      </BlockStack>
       <div
         style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
       >
         <ButtonGroup>
           <Button
+            id="previous--page--button"
             disabled={page === 0}
-            onClick={() => handleChangePage(-1)}
-            id="previous-page"
+            onClick={() => setPage(page + -1)}
           >
             Trang trước
           </Button>
           <Button
+            id="next--page--button"
             disabled={items.length < itemsPerPage * (page + 1)}
-            onClick={() => handleChangePage(1)}
-            id="next-page"
+            onClick={() => setPage(page + 1)}
           >
             Trang tiếp theo
           </Button>
@@ -171,6 +216,7 @@ const OrdersPage = () => {
           }}
         >
           <Button
+            id="edit--order--button"
             variant="primary"
             disabled={selectedRows.length > 1}
             onClick={handleEditItem}
@@ -178,6 +224,7 @@ const OrdersPage = () => {
             Sửa đơn hàng
           </Button>
           <Button
+            id="delete--order--button"
             variant="primary"
             tone="critical"
             onClick={() => {
@@ -188,10 +235,20 @@ const OrdersPage = () => {
           >
             Xoá đơn hàng
           </Button>
+          <Button
+            id="confirm--payment--order--button"
+            variant="secondary"
+            tone="success"
+            onClick={handleConfirmPayment}
+            disabled={status[0] === 'true'}
+          >
+            Xác nhận thanh toán
+          </Button>
         </div>
       )}
       {open && (
         <EditOrderDialog
+          id="eidt--order--dialog"
           order={order}
           open={open}
           setOpen={setOpen}
@@ -200,6 +257,7 @@ const OrdersPage = () => {
         />
       )}
       <ModalDeleteProduct
+        id="modal--delete-product"
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
         type={"orders"}

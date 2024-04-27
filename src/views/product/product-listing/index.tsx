@@ -336,6 +336,7 @@ const ProductsListing = () => {
       </BlockStack>
       <ModalEditProduct />
       <ModalDeleteProduct
+        id="modal--delete--product"
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
         type={"products"}

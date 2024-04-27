@@ -19,8 +19,10 @@ import moment from "moment";
 import axios from "axios";
 import AddOrderProductDialog from "./AddOrderProductDialog";
 import { Order, OrderProduct, Supplier } from "../../interface";
+import { ORDER_API, SUPPLIER_API } from "../../constants/api";
 
 interface Props {
+  id: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   order: Order;
@@ -35,33 +37,38 @@ const EditOrderDialog: React.FC<Props> = ({
   fetchData,
   setSelectedRows,
 }) => {
-  const [taxType, setTaxType] = useState<string>("5");
-  const [showErr, setShowErr] = useState<boolean>(false);
-  const [showCodeErr, setShowCodeErr] = useState<boolean>(false);
-  const [showSupllierErr, setShowSupplierErr] = useState<boolean>(false);
   const [listSupplier, setListSupplier] = useState<Supplier[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number | undefined>(0);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+
   const [addProductDialog, setAddProductDialog] = useState<boolean>(false);
   const [orderProduct, setOrderProduct] = useState<OrderProduct>();
   const [orderData, setOrderData] = useState<Order>(
     order || {
       createdAt: moment().format("YYYY-MM-DD"),
       status: false,
-      supplier: { id: 0, name: "" },
-      orderProducts: [],
-      tax: 0.05,
+      supplier: { id: 0, name: ""},
+      importOrderProducts: [],
+      tax: 0,
       note: "",
       code: "",
+      employeeId: 1,
+      payment: 0
     }
   );
   const [supplier, setSupplier] = useState<string>(
     order?.supplier?.id.toString()
   );
 
+  const [showErr, setShowErr] = useState<boolean>(false);
+  const [showCodeErr, setShowCodeErr] = useState<boolean>(false);
+  const [showSupllierErr, setShowSupplierErr] = useState<boolean>(false);
+
+  const [codeErrMessage, setCodeErrMessage] = useState<string>("");
+
   useEffect(() => {
     const fetchSupplierData = async () => {
       const response = await axios.get(
-        "http://54.199.68.197:8081/api/v1/suppliers",
+        SUPPLIER_API,
         {
           params: {
             page: 0,
@@ -75,37 +82,43 @@ const EditOrderDialog: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    setTotalPrice(calcTotalPrice());
+    const productsPrice = calcTotalProductsPrice() as number;
+    setTotalPrice(productsPrice);
+    setOrderData({
+      ...orderData,
+      tax: 0.01 * productsPrice,
+      payment: productsPrice + 0.01 * productsPrice
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderData]);
+  }, [orderData.importOrderProducts]);
 
   const convertDataToRow = (tableData: Order | undefined): TableData[][] => {
-    if (!tableData || !tableData.orderProducts) return [];
+    if (!tableData || !tableData.importOrderProducts) return [];
 
-    return tableData.orderProducts.map((item: OrderProduct) => [
-      <Box id="product-name-and-image">
-        <Text id="product-name" as="p">
+    return tableData.importOrderProducts.map((item: OrderProduct) => [
+      <Box id="product--name--and--image">
+        <Text id="product--name" as="p">
           {item.product.name}
         </Text>
         <Thumbnail source={item.product.image} alt="image" />
       </Box>,
       <div style={{ textAlign: "center" }}>{item.quantity}</div>,
       item.product.category.name,
-      item.product.price,
-      item.product.price * item.quantity,
+      item.importPrice,
+      item.importPrice * item.quantity,
       <div style={{ minWidth: "70px" }}>
         <ButtonGroup>
           <Button
+            id="edit--order--product--btn"
             icon={EditIcon}
             onClick={() => handleClickEdit(item)}
-            id="edit-order-product-btn"
             disabled={orderData?.status}
           />
           <Button
+            id="delete--order--product--btn"
             icon={DeleteIcon}
             tone="critical"
             onClick={() => handleClickDelete(item)}
-            id="delete-order-product-btn"
             disabled={orderData?.status}
           />
         </ButtonGroup>
@@ -113,10 +126,10 @@ const EditOrderDialog: React.FC<Props> = ({
     ]);
   };
 
-  const calcTotalPrice = (): number | undefined => {
-    return orderData?.orderProducts?.reduce(
+  const calcTotalProductsPrice = (): number | undefined => {
+    return orderData?.importOrderProducts?.reduce(
       (store: number, item: OrderProduct) =>
-        store + item.quantity * item.product.price,
+        store + item.quantity * item.importPrice,
       0
     );
   };
@@ -129,7 +142,7 @@ const EditOrderDialog: React.FC<Props> = ({
 
   const handleChangeSupplier = (value: string) => {
     setSupplier(value as string);
-    setOrderData({ ...orderData, supplier: { id: value, name: "" } });
+    setOrderData({ ...orderData, supplier: { id: value, name: "" }});
   };
 
   const handleUpdateItem = (data: OrderProduct, id: number) => {
@@ -137,9 +150,9 @@ const EditOrderDialog: React.FC<Props> = ({
       setShowErr(false);
       setAddProductDialog(false);
       let isExist = false;
-      const newOrderProducts = orderData?.orderProducts?.map(
+      const newOrderProducts = orderData?.importOrderProducts?.map(
         (item: OrderProduct) => {
-          if (item.product.id === data.product.id || item.id === id) {
+          if (item.product.id === data.product.id) {
             isExist = true;
             return data;
           }
@@ -149,12 +162,9 @@ const EditOrderDialog: React.FC<Props> = ({
 
       setOrderData({
         ...orderData,
-        orderProducts:
-          id || isExist
-            ? newOrderProducts
-            : orderData
-              ? [...(orderData?.orderProducts as Array<OrderProduct>), data]
-              : [data],
+        importOrderProducts: isExist
+          ? newOrderProducts
+          : [...(orderData?.importOrderProducts as Array<OrderProduct>), data]
       });
     } else {
       alert("Vui lòng điền đầy đủ thông tin");
@@ -162,14 +172,12 @@ const EditOrderDialog: React.FC<Props> = ({
   };
 
   const handleClickDelete = (item: OrderProduct) => {
-    if (orderData && orderData.orderProducts) {
-      setOrderData({
-        ...orderData,
-        orderProducts: orderData.orderProducts.filter(
-          (product: OrderProduct) => item.id !== product.id
-        ),
-      });
-    }
+    setOrderData({
+      ...orderData,
+      importOrderProducts: orderData?.importOrderProducts?.filter(
+        (product: OrderProduct) => item.product.id !== product.product.id
+      ),
+    });
   };
 
   const handleClickEdit = (item: OrderProduct) => {
@@ -178,14 +186,21 @@ const EditOrderDialog: React.FC<Props> = ({
   };
 
   const validate = (): boolean => {
+    const codeRegex = /^[A-Za-z]{2}[A-Za-z0-9]{3}$/;
     let check = true;
-    if (orderData?.orderProducts?.length === 0) {
+
+    if (orderData?.importOrderProducts?.length === 0) {
       setShowErr(true);
       check = false;
     }
 
     if (orderData?.code.length === 0) {
       setShowCodeErr(true);
+      setCodeErrMessage("Vui lòng nhập mã vận đơn.");
+      check = false;
+    } else if (!codeRegex.test(orderData?.code)) {
+      setShowCodeErr(true);
+      setCodeErrMessage("Mã vận đơn gồm 5 ký tự, bắt đầu bằng 2 chữ cái và tiếp theo là 3 chữ số bất kỳ.");
       check = false;
     }
 
@@ -199,32 +214,26 @@ const EditOrderDialog: React.FC<Props> = ({
   const handleSubmit = async () => {
     if(!validate()) return;
 
-    const newData = orderData?.orderProducts?.map((product: OrderProduct) => {
+    const newData = orderData?.importOrderProducts?.map((product: OrderProduct) => {
       return {
-        id: product.product.id,
+        productId: product.product.id,
         quantity: product.quantity,
+        importPrice: product.importPrice
       };
     });
+
+    const sendData = {
+      ...orderData,
+      supplierId: orderData?.supplier?.id,
+      importOrderProducts: newData,
+      employeeId: 1
+    }
 
     if (order?.id) {
       try {
         await axios.put(
-          `http://54.199.68.197:8081/api/v1/orders/${order.id}`,
-          {
-            code: orderData?.code,
-            note: orderData?.note,
-            taxType: orderData?.tax,
-            supplier: {
-              id: orderData?.supplier?.id,
-            },
-            products: newData,
-          },
-          {
-            params: {
-              page: 0,
-              size: 1000,
-            },
-          }
+          `${ORDER_API}/${order.id}`,
+          sendData
         );
         fetchData();
         setOpen(false);
@@ -233,24 +242,9 @@ const EditOrderDialog: React.FC<Props> = ({
         alert(e.response.data.message);
       }
     } else {
-      const sendData = {
-        ...orderData,
-        supplier: {
-          id: orderData?.supplier.id,
-        },
-        products: (orderData.orderProducts as Array<OrderProduct>).map(
-          (item: OrderProduct) => {
-            return {
-              id: item.product.id,
-              quantity: item.quantity,
-            };
-          }
-        ),
-        status: false,
-      };
       try {
         const response = await axios.post(
-          "http://54.199.68.197:8081/api/v1/orders",
+          ORDER_API,
           sendData
         );
         if (response?.data?.status === 200) {
@@ -307,7 +301,8 @@ const EditOrderDialog: React.FC<Props> = ({
                   </Grid.Cell>
                   <Grid.Cell columnSpan={{ xs: 6 }}>
                     <TextField
-                      label="Mã vận đơn"
+                      id="order--code"
+                      label="Mã đơn hàng"
                       type="text"
                       value={orderData?.code}
                       onChange={(e) => {
@@ -315,17 +310,16 @@ const EditOrderDialog: React.FC<Props> = ({
                         setShowCodeErr(false);
                       }}
                       autoComplete="off"
-                      id="delivery-code"
                       disabled={orderData?.status}
                       requiredIndicator
+                      error={showCodeErr && codeErrMessage}
                     />
-                    {showCodeErr && <Text tone="critical" as="p">Vui lòng nhập mã vận đơn</Text>}
                   </Grid.Cell>
                 </Grid>
                 <div>
                   <Select
+                    id="order--supplier--select"
                     disabled={orderData?.status}
-                    id="supplier-select"
                     label="Nhà cung cấp"
                     options={listSupplier.map((item: Supplier) => {
                       return {
@@ -340,11 +334,11 @@ const EditOrderDialog: React.FC<Props> = ({
                     }}
                     placeholder="Chọn nhà cung cấp"
                     requiredIndicator
+                    error={showSupllierErr && "Vui lòng chọn nhà cung cấp"}
                   />
-                  {showSupllierErr && <Text tone="critical" as="p">Vui lòng chọn nhà cung cấp</Text>}
                 </div>
                 <TextField
-                  id="note"
+                  id="order--note"
                   label="Ghi chú"
                   value={orderData?.note}
                   onChange={handleChangeNote}
@@ -359,69 +353,45 @@ const EditOrderDialog: React.FC<Props> = ({
             <Grid.Cell columnSpan={{ xs: 6, md: 2, lg: 4 }}>
               <div style={{ marginBottom: "15px" }}>
                 <TextField
-                  id="total-product-price"
+                  id="order--total--product--price"
                   label="Tổng tiền hàng hoá"
                   value={totalPrice?.toString()}
                   disabled
                   autoComplete=""
-                />
-              </div>
-              <div style={{ marginBottom: "15px" }}>
-                <Select
-                  id="tax-select"
-                  label="Chọn mức thuế"
-                  value={taxType}
-                  options={[
-                    {
-                      label: "5%",
-                      value: "0.05",
-                    },
-                    {
-                      label: "10%",
-                      value: "0.1",
-                    },
-                  ]}
-                  onChange={(e) => setTaxType(e)}
-                  disabled={orderData?.status}
+                  suffix="vnđ"
                 />
               </div>
               <div style={{ marginBottom: "15px" }}>
                 <TextField
-                  id="tax"
+                  id="order--tax"
                   label="Giá trị thuế"
-                  value={
-                    totalPrice
-                      ? (parseFloat(taxType) * totalPrice).toString()
-                      : "0"
-                  }
+                  value={orderData?.tax.toString()}
                   autoComplete=""
+                  suffix="vnđ"
                 />
               </div>
               <TextField
-                id="total"
+                id="order--total"
                 label="Tổng hóa đơn"
-                value={
-                  totalPrice
-                    ? (parseFloat(taxType) * totalPrice + totalPrice).toString()
-                    : "0"
-                }
+                value={orderData?.payment.toString()}
                 disabled
                 autoComplete=""
+                suffix="vnđ"
               />
             </Grid.Cell>
             <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
               <InlineStack gap="400">
                 <Button
                   disabled={orderData?.status}
+                  id="add-order-product-btn"
                   onClick={() => {
                     setAddProductDialog(true);
                     setOrderProduct(undefined);
                   }}
-                  id="add-order-product-btn"
                 >
                   Thêm mặt hàng
                 </Button>
-                {showErr && <Text tone="critical" as="p">Vui lòng nhập sản phẩm</Text>}
+                {showErr && <Text id="missing--porudct--error" tone="critical" as="p">Vui lòng nhập sản phẩm</Text>}
               </InlineStack>
               <DataTable
                 columnContentTypes={[
@@ -436,7 +406,7 @@ const EditOrderDialog: React.FC<Props> = ({
                   "Tên mặt hàng",
                   <div style={{ textAlign: "center" }}>Số lượng</div>,
                   "Loại",
-                  "Giá",
+                  "Giá nhập",
                   "Tổng tiền",
                   "Thao tác",
                 ]}

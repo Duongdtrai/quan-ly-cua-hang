@@ -10,6 +10,7 @@ import { SUPPLIER_API } from "../../constants/api";
 import { Supplier } from "../../interface";
 
 interface SupplierDetailModalProps {
+  id: string;
   active: boolean;
   onDismiss: () => void;
   supplier: Supplier | undefined;

@@ -1,15 +1,17 @@
 export interface Order {
-  createdAt: string;
-  id: number | string;
-  status: boolean;
-  orderProducts: Array<OrderProduct> | undefined;
-  supplier: {
-    id: string;
-    name: String;
-  };
-  note: string | undefined;
-  tax: number;
   code: string;
+  createdAt: string;
+  employeeId: number;
+  id: number | string;
+  importOrderProducts: Array<OrderProduct> | undefined;
+  note: string | undefined;
+  payment: number;
+  status: boolean;
+  supplier: {
+    id: number | string;
+    name: string;
+  };
+  tax: number;
 }
 
 export interface Category {
@@ -48,5 +50,6 @@ export interface Supplier {
 export interface OrderProduct {
   id: number;
   quantity: number;
+  importPrice: number;
   product: Product;
 }
