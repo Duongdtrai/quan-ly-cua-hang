@@ -14,6 +14,7 @@ import axios from "axios";
 import { SUPPLIER_API } from "../../constants/api";
 
 interface SupplierDataTableProps {
+  id: string;
   suppliers: Supplier[];
   setSuppliers: React.Dispatch<React.SetStateAction<Supplier[]>>;
   loading: boolean;

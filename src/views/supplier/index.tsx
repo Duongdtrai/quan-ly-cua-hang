@@ -78,6 +78,7 @@ const SupplierPage = () => {
       ) : (
         <>
           <SupplierDataTable
+            id="supplier--data--table"
             suppliers={suppliers}
             setSuppliers={setSuppliers}
             pageIndex={pageIndex}
@@ -89,6 +90,7 @@ const SupplierPage = () => {
             onViewSupplier={onViewSupplier}
           />
           <SupplierDetailModal
+            id="supplier--detail--modal"
             loading={loadingModal}
             setLoading={setLoadingModal}
             active={isActiveAddModal}

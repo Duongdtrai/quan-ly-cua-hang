@@ -13,8 +13,6 @@ const ProductPage = React.lazy(() => import("./views/product/product-listing"));
 const OrdersPage = React.lazy(() => import("./views/order"));
 const SupplierPage = React.lazy(() => import("./views/supplier"));
 
-
-
 function App() {
   return (
     <AppProvider i18n={enTranslations}>

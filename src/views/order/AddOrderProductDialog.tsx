@@ -8,6 +8,7 @@ import {
 } from "@shopify/polaris";
 import axios from "axios";
 import { Category, OrderProduct, Product } from "../../interface";
+import { CATEGORY_API, PRODUCT_API } from "../../constants/api";
 
 interface AddOrderProductDialogProps {
   open: boolean;
@@ -23,9 +24,9 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
   data,
 }: AddOrderProductDialogProps) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [orderProduct, setOrderProduct] = useState<OrderProduct>(data);
-  const [product, setProduct] = useState<Product | null>(data?.product);
   const [categories, setCategories] = useState<Category[]>([]);
+
+  const [orderProduct, setOrderProduct] = useState<OrderProduct>(data);
   const [category, setCategory] = useState<string>(
     data?.product?.category?.id.toString() || ""
   );
@@ -35,19 +36,17 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(
-        "http://54.199.68.197:8081/api/v1/products"
-      );
+      const response = await axios.get(PRODUCT_API);
       setProducts(response?.data?.data?.data);
       const newProducts = response?.data?.data?.data.filter(
         (item: Product) => item.category.id.toString() === category
       );
       setDisplayProducts(newProducts);
-      setProduct(newProducts[0]);
       setOrderProduct({
-        id: data.id,
-        product: newProducts[0],
-        quantity: data.quantity,
+        id: data?.id,
+        product: data?.product || newProducts[0],
+        quantity: data?.quantity,
+        importPrice: data?.importPrice
       })
     };
     fetchData();
@@ -57,7 +56,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        "http://54.199.68.197:8081/api/v1/category",
+        CATEGORY_API,
         {
           params: {
             page: 0,
@@ -66,25 +65,17 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
         }
       );
       setCategories(response?.data?.data?.data);
-      if (!data) setCategory(response?.data?.data?.data[0].id.toString())
+      if (!data) setCategory(response?.data?.data?.data[0].id.toString());
     };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleChangeQuantity = (value: string) => {
-    setOrderProduct({
-      ...orderProduct,
-      quantity: parseInt(value),
-    });
-  };
 
   const handleChangeProduct = (value: string) => {
     const selectedProduct = products.find(
       (item: Product) => item.id === parseInt(value)
     );
     if (selectedProduct) {
-      setProduct(selectedProduct);
       setOrderProduct({ ...orderProduct, product: selectedProduct });
     }
   };
@@ -98,13 +89,15 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
       size="small"
       open={open}
       onClose={() => setOpen(false)}
-      title={data?.id ? "Sửa thông tin mặt hàng" : "Thêm Mặt Hàng"}
+      title={data ? "Sửa thông tin mặt hàng" : "Thêm Mặt Hàng"}
       primaryAction={{
-        content: data?.id ? "Lưu" : "Thêm",
+        id:"modal--save--button",
+        content: data ? "Lưu" : "Thêm",
         onAction: () => handleUpdateItem(orderProduct, data?.id),
       }}
       secondaryActions={[
         {
+          id: "modal--cancel--button",
           content: "Hủy",
           onAction: () => setOpen(false),
         },
@@ -114,7 +107,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
         <Modal.Section>
           <FormLayout>
             <Select
-              id="select-category"
+              id="select--category"
               label="Chọn loại mặt hàng"
               options={categories.map((item: Category) => ({
                 label: item.name,
@@ -122,38 +115,46 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
               }))}
               value={category}
               onChange={(value) => handleChangeCategory(value as string)}
-              disabled={data?.id ? true : false}
             />
             <Select
-              id="select-product"
+              id="select--product"
               label="Chọn mặt hàng"
               options={displayProducts.map((item: Product) => ({
                 label: item.name,
                 value: item.id ? item.id.toString() : "",
               }))}
-              value={product?.id?.toString() || ""}
+              value={orderProduct?.product?.id?.toString() || ""}
               onChange={(value) => handleChangeProduct(value as string)}
-              disabled={data?.id ? true : false}
             />
             <TextField
-              id="quantity"
+              id="quantity--input"
               label="Số Lượng"
               type="number"
               min={1}
               value={
                 orderProduct?.quantity ? orderProduct?.quantity?.toString() : ""
               }
-              onChange={(value) => handleChangeQuantity(value)}
+              onChange={(value) => 
+                setOrderProduct({
+                  ...orderProduct,
+                  quantity: parseInt(value),
+              })}
               disabled={!category}
               autoComplete="off"
             />
             <TextField
-              id="price"
-              label="Giá"
+              id="price--input"
+              label="Giá nhập"
               type="number"
-              value={product?.price.toString()}
-              disabled
+              value={orderProduct?.importPrice?.toString() ?? 0}
+              onChange={(value) => 
+                setOrderProduct({
+                  ...orderProduct,
+                  importPrice: parseInt(value),
+              })}
               autoComplete="off"
+              suffix="vnđ"
+              min={0}
             />
           </FormLayout>
         </Modal.Section>
