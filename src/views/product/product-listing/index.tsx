@@ -26,21 +26,23 @@ import ModalEditProduct from "../modal/modal-edit-product";
 import ModalUnsave from "../modal/modal-unsave";
 import ModalDeleteProduct from "../modal/modal-delete-product";
 import { useDocument } from "../../../hook/useDocument";
+import { HOST } from "../../../constants/api";
+import SkeletonIndexTable from "../../../components/Skeleton/skeleton-table";
 
 const defaultTable: {
   heading: string;
   type: "text" | "numeric";
   sortable: boolean;
 }[] = [
-    { heading: "", type: "text", sortable: false },
-    { heading: "Id", type: "text", sortable: true },
-    { heading: "Tên mặt hàng", type: "text", sortable: true },
-    { heading: "Hình ảnh", type: "text", sortable: false },
-    { heading: "Loại", type: "text", sortable: false },
-    { heading: "Giá niêm yết", type: "numeric", sortable: true },
-    { heading: "Số lượng còn lại", type: "numeric", sortable: true },
-    { heading: "Mô tả", type: "text", sortable: false },
-  ];
+  { heading: "", type: "text", sortable: false },
+  { heading: "Id", type: "text", sortable: true },
+  { heading: "Tên mặt hàng", type: "text", sortable: true },
+  { heading: "Hình ảnh", type: "text", sortable: false },
+  { heading: "Loại", type: "text", sortable: false },
+  { heading: "Giá niêm yết", type: "numeric", sortable: true },
+  { heading: "Số lượng còn lại", type: "numeric", sortable: true },
+  { heading: "Mô tả", type: "text", sortable: false },
+];
 
 const formatToDataTable = (products: Product[]): TableData[][] => {
   return products
@@ -87,8 +89,8 @@ const formatToTableRow = (
         onChange={(v: boolean) => {
           !v
             ? setSelectedRows((prev: any) =>
-              prev.filter((rowId: any) => rowId !== id)
-            )
+                prev.filter((rowId: any) => rowId !== id)
+              )
             : setSelectedRows((prev: any) => [...prev, id]);
         }}
       />,
@@ -115,6 +117,7 @@ const ProductsListing = () => {
   const [activePopover, setActivePopover] = useState(false);
   const [selectedCategorys, setSelectedCategorys] = useState<Category[]>([]);
   const [searchCategory, setSearchCategory] = useState("");
+  const [isInitTable, setIsInitTable] = useState(true);
 
   useDocument("Quản lý mặt hàng");
 
@@ -124,9 +127,10 @@ const ProductsListing = () => {
 
   useEffect(() => {
     axios
-      .get("http://54.199.68.197:8081/api/v1/products?page=0&size=10000")
+      .get(`${HOST}/products?page=0&size=10000`)
       .then((res) => {
-        if (res.status === 200)
+        if (res.status === 200) {
+          setIsInitTable(false);
           setSortedRows(
             sortTable(
               formatToDataTable(res?.data?.data?.data || []),
@@ -134,11 +138,12 @@ const ProductsListing = () => {
               "ascending"
             )
           );
+        }
       })
       .catch((e) => console.error(e));
 
     axios
-      .get("http://54.199.68.197:8081/api/v1/category")
+      .get(`${HOST}/category`)
       .then((res) => {
         if (res.status === 200) setListCategory(res?.data?.data?.data || []);
       })
@@ -180,8 +185,8 @@ const ProductsListing = () => {
           setSelectedRows((prev: number[]) =>
             prev.find((rowId: any) => rowId === filteredRows[index][0])
               ? prev.filter(
-                (rowId: any) => rowId !== Number(filteredRows[index][0])
-              )
+                  (rowId: any) => rowId !== Number(filteredRows[index][0])
+                )
               : [...prev, Number(filteredRows[index][0])]
           );
         }
@@ -208,140 +213,152 @@ const ProductsListing = () => {
         onAction: () => openModal(EModal.MODAL_EDIT_PRODUCT),
       }}
     >
-      <BlockStack gap={"400"}>
-        <InlineStack gap={"400"} blockAlign="center">
-          <TextField
-            labelHidden
-            label=""
-            value={searchProduct}
-            onChange={(v) => setSearchProduct(v)}
-            onClearButtonClick={() => setSearchProduct("")}
-            placeholder="Tìm kiếm mặt hàng..."
-            autoComplete=""
-            clearButton
-          />
-          <Box padding={"200"}>
-            <Popover
-              active={activePopover}
-              preferredAlignment="left"
-              preferredPosition="below"
-              activator={
-                <Button
-                  onClick={() => setActivePopover((prev) => !prev)}
-                  disclosure
+      {isInitTable ? (
+        <SkeletonIndexTable number={4} />
+      ) : (
+        <>
+          <BlockStack gap={"400"}>
+            <InlineStack gap={"400"} blockAlign="center">
+              <TextField
+                labelHidden
+                label=""
+                value={searchProduct}
+                onChange={(v) => setSearchProduct(v)}
+                onClearButtonClick={() => setSearchProduct("")}
+                placeholder="Tìm kiếm mặt hàng..."
+                autoComplete=""
+                clearButton
+              />
+              <Box padding={"200"}>
+                <Popover
+                  active={activePopover}
+                  preferredAlignment="left"
+                  preferredPosition="below"
+                  activator={
+                    <Button
+                      onClick={() => setActivePopover((prev) => !prev)}
+                      disclosure
+                    >
+                      Lọc theo loại mặt hàng
+                    </Button>
+                  }
+                  onClose={() => setActivePopover((prev) => !prev)}
+                  ariaHaspopup={false}
                 >
-                  Lọc theo loại mặt hàng
-                </Button>
-              }
-              onClose={() => setActivePopover((prev) => !prev)}
-              ariaHaspopup={false}
-            >
-              <Box padding={"150"} width="240px">
-                <BlockStack gap={"200"}>
-                  <TextField
-                    onChange={(v) => {
-                      setSearchCategory(v);
-                    }}
-                    label="Search category"
-                    labelHidden
-                    placeholder="Tìm kiếm theo loại"
-                    value={searchCategory}
-                    prefix={<Icon source={SearchIcon} tone="base" />}
-                    autoComplete="off"
-                    clearButton
-                    onClearButtonClick={() => {
-                      setSearchCategory("");
-                    }}
-                  />
-                  <Scrollable style={{ maxHeight: 300 }}>
-                    {filteredListCategory.map((category) => (
-                      <CategoryListItem
-                        key={category.id}
-                        category={category}
-                        selectedCategorys={selectedCategorys}
-                        setSelectedCategorys={setSelectedCategorys}
+                  <Box padding={"150"} width="240px">
+                    <BlockStack gap={"200"}>
+                      <TextField
+                        onChange={(v) => {
+                          setSearchCategory(v);
+                        }}
+                        label="Search category"
+                        labelHidden
+                        placeholder="Tìm kiếm theo loại"
+                        value={searchCategory}
+                        prefix={<Icon source={SearchIcon} tone="base" />}
+                        autoComplete="off"
+                        clearButton
+                        onClearButtonClick={() => {
+                          setSearchCategory("");
+                        }}
                       />
-                    ))}
-                  </Scrollable>
-                </BlockStack>
+                      <Scrollable style={{ maxHeight: 300 }}>
+                        {filteredListCategory.map((category) => (
+                          <CategoryListItem
+                            key={category.id}
+                            category={category}
+                            selectedCategorys={selectedCategorys}
+                            setSelectedCategorys={setSelectedCategorys}
+                          />
+                        ))}
+                      </Scrollable>
+                    </BlockStack>
+                  </Box>
+                </Popover>
               </Box>
-            </Popover>
-          </Box>
 
-          <Button
-            onClick={() => setSelectedRows([])}
-            disabled={!selectedRows.length}
-          >
-            Bỏ chọn
-          </Button>
-        </InlineStack>
+              <Button
+                onClick={() => setSelectedRows([])}
+                disabled={!selectedRows.length}
+              >
+                Bỏ chọn
+              </Button>
+            </InlineStack>
 
-        <Box position="relative">
-          <DataTable
-            headings={defaultTable.map(({ heading }) => heading)}
-            columnContentTypes={defaultTable.map(({ type }) => type)}
-            sortable={defaultTable.map(({ sortable }) => sortable)}
-            rows={formatToTableRow(filteredRows, selectedRows, setSelectedRows)}
-            fixedFirstColumns={0}
-            firstColumnMinWidth="500px"
-            truncate
-            verticalAlign="middle"
-            hoverable
-            stickyHeader
-            onSort={handleSort}
-            defaultSortDirection="ascending"
-            initialSortColumnIndex={0}
+            <Box position="relative">
+              <DataTable
+                headings={defaultTable.map(({ heading }) => heading)}
+                columnContentTypes={defaultTable.map(({ type }) => type)}
+                sortable={defaultTable.map(({ sortable }) => sortable)}
+                rows={formatToTableRow(
+                  filteredRows,
+                  selectedRows,
+                  setSelectedRows
+                )}
+                fixedFirstColumns={0}
+                firstColumnMinWidth="500px"
+                truncate
+                verticalAlign="middle"
+                hoverable
+                stickyHeader
+                onSort={handleSort}
+                defaultSortDirection="ascending"
+                initialSortColumnIndex={0}
+              />
+              {selectedRows.length > 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    bottom: "15px",
+                    background: "#fff",
+                    paddingBlock: 8,
+                    paddingInline: 12,
+                    borderRadius: 8,
+                    border: "1px solid #f1f1f1",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    gap: "12px",
+                  }}
+                >
+                  <Button
+                    variant="primary"
+                    disabled={selectedRows.length > 1}
+                    onClick={() =>
+                      openModal(EModal.MODAL_EDIT_PRODUCT, {
+                        data: sortedRows.find(
+                          (row) => row[0] === selectedRows[0]
+                        ),
+                      })
+                    }
+                  >
+                    Sửa mặt hàng
+                  </Button>
+                  <Button
+                    variant="primary"
+                    tone="critical"
+                    onClick={() =>
+                      openModal(EModal.MODAL_DELETE_PRODUCT, {
+                        data: { selectedRows, setSelectedRows },
+                      })
+                    }
+                  >
+                    Xoá mặt hàng
+                  </Button>
+                </div>
+              )}
+            </Box>
+          </BlockStack>
+          <ModalEditProduct />
+          <ModalDeleteProduct
+            id="modal--delete--product"
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows}
+            type={"products"}
           />
-          {selectedRows.length > 0 && (
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                bottom: "15px",
-                background: "#fff",
-                paddingBlock: 8,
-                paddingInline: 12,
-                borderRadius: 8,
-                border: "1px solid #f1f1f1",
-                transform: "translateX(-50%)",
-                display: "flex",
-                gap: "12px",
-              }}
-            >
-              <Button
-                variant="primary"
-                disabled={selectedRows.length > 1}
-                onClick={() =>
-                  openModal(EModal.MODAL_EDIT_PRODUCT, {
-                    data: sortedRows.find((row) => row[0] === selectedRows[0]),
-                  })
-                }
-              >
-                Sửa mặt hàng
-              </Button>
-              <Button
-                variant="primary"
-                tone="critical"
-                onClick={() =>
-                  openModal(EModal.MODAL_DELETE_PRODUCT, {
-                    data: { selectedRows, setSelectedRows },
-                  })
-                }
-              >
-                Xoá mặt hàng
-              </Button>
-            </div>
-          )}
-        </Box>
-      </BlockStack>
-      <ModalEditProduct />
-      <ModalDeleteProduct
-        id="modal--delete--product"
-        selectedRows={selectedRows}
-        setSelectedRows={setSelectedRows}
-        type={"products"}
-      />
-      <ModalUnsave />
+          <ModalUnsave />
+        </>
+      )}
     </Page>
   );
 };
@@ -366,13 +383,13 @@ const sortTable = (
       return [...rows].sort((a: any, b: any) => {
         return direction === "ascending"
           ? a[1]
-            ?.toString()
-            .toLowerCase()
-            .localeCompare(b[1]?.toString().toLowerCase())
+              ?.toString()
+              .toLowerCase()
+              .localeCompare(b[1]?.toString().toLowerCase())
           : b[1]
-            ?.toString()
-            .toLowerCase()
-            .localeCompare(a[1]?.toString().toLowerCase());
+              ?.toString()
+              .toLowerCase()
+              .localeCompare(a[1]?.toString().toLowerCase());
       });
     }
 

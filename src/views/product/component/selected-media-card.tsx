@@ -10,36 +10,38 @@ import {
 import { DeleteIcon, ImageIcon } from "@shopify/polaris-icons";
 import { memo } from "react";
 import { ECloudinary } from "../../../constants";
-import sha1 from 'crypto-js/sha1';
-import { enc } from 'crypto-js';
+import sha1 from "crypto-js/sha1";
+import { enc } from "crypto-js";
 import axios from "axios";
 
 interface ISelectedMediaCard {
   imageUrl: string;
   filename: string;
   setImage: Function;
+  setIsLoading: Function;
 }
 
-
-
 export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
-  const { imageUrl, filename, setImage } = props;
-
-
+  const { imageUrl, filename, setImage, setIsLoading } = props;
 
   const handleUpload = async (file: any) => {
+    setIsLoading(true);
     const formData = new FormData();
     const cloudName = ECloudinary.CLOUDINARY_CLOUD_NAME;
-    formData.append('file', file);
-    formData.append('upload_preset', ECloudinary.CLOUDINARY_UPLOAD_PRESET);
-    formData.append('cloud_name', cloudName)
-    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
+    formData.append("file", file);
+    formData.append("upload_preset", ECloudinary.CLOUDINARY_UPLOAD_PRESET);
+    formData.append("cloud_name", cloudName);
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     const data = await response.json();
     console.log(data);
     setImage(data.secure_url);
+    setIsLoading(false);
   };
   const generateSHA1 = (data: string) => {
     return sha1(data).toString(enc.Hex);
@@ -62,7 +64,9 @@ export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
       const timestamp = new Date().getTime();
       const apiKey = ECloudinary.CLOUDINARY_API_KEY;
       const apiSecret = ECloudinary.CLOUDINARY_API_SECRET;
-      const signature = generateSHA1(generateSignature(publicId as string, apiSecret));
+      const signature = generateSHA1(
+        generateSignature(publicId as string, apiSecret)
+      );
       const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
 
       const response = await axios.post(url, {
@@ -73,7 +77,7 @@ export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
       });
       console.error(response);
     } catch (error) {
-      console.error('Error deleting image:', error);
+      console.error("Error deleting image:", error);
     }
   };
 
@@ -136,11 +140,20 @@ export default memo(function SelectedMediaCard(props: ISelectedMediaCard) {
           <Button
             icon={DeleteIcon}
             onClick={() => {
+              deleteImage(imageUrl);
               setImage(() => "");
             }}
           />
         </ButtonGroup>
-        <Button onClick={() => deleteImage("http://res.cloudinary.com/ptd/image/upload/v1711542525/mlpfnieejja2jkfpdks8.jpg")}>Test image</Button>
+        {/* <Button
+          onClick={() =>
+            deleteImage(
+              "http://res.cloudinary.com/ptd/image/upload/v1711542525/mlpfnieejja2jkfpdks8.jpg"
+            )
+          }
+        >
+          Test image
+        </Button> */}
       </InlineStack>
     </Box>
   );

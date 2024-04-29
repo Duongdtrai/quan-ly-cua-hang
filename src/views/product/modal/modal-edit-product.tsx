@@ -18,6 +18,7 @@ import { Category, Product } from "../../../interface";
 import { CategoryListItem } from "../CategoryListItem";
 import DropZoneImage from "../component/drop-zone-image";
 import SelectedMediaCard from "../component/selected-media-card";
+import { HOST } from "../../../constants/api";
 
 const EErrorText = {
   Empty: (name: string) => `${name} không được để trống.`,
@@ -28,6 +29,7 @@ const EErrorText = {
 const ModalEditProduct = () => {
   const { state, openModal, closeModal } = useModal();
   const data = state[EModal.MODAL_EDIT_PRODUCT]?.data || [];
+  const [isFetching, setIsFetching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>();
@@ -44,7 +46,7 @@ const ModalEditProduct = () => {
 
   const fetchProduct = async (id: number) => {
     await axios
-      .get(`http://54.199.68.197:8081/api/v1/products/${id}`)
+      .get(`${HOST}/products/${id}`)
       .then((response) => {
         return response.data;
       })
@@ -58,7 +60,7 @@ const ModalEditProduct = () => {
 
   const fetchCategory = async () => {
     await axios
-      .get(`http://54.199.68.197:8081/api/v1/category`)
+      .get(`${HOST}/category`)
       .then((response) => {
         return response.data;
       })
@@ -75,12 +77,12 @@ const ModalEditProduct = () => {
 
   useEffect(() => {
     if (data[0]) {
-      setIsLoading(true);
+      setIsFetching(true);
       fetchProduct(data[0])
         .then(() => fetchCategory())
-        .then(() => setIsLoading(false));
+        .then(() => setIsFetching(false));
     } else {
-      fetchCategory().then(() => setIsLoading(false));
+      fetchCategory().then(() => setIsFetching(false));
       setProduct(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,7 +174,7 @@ const ModalEditProduct = () => {
 
     if (isCreatedNewCategory) {
       const response: any = await axios
-        .post(`http://54.199.68.197:8081/api/v1/category`, {
+        .post(`${HOST}/category`, {
           name: category.name,
         })
         .catch((e) => console.log(e));
@@ -192,17 +194,17 @@ const ModalEditProduct = () => {
       quantity,
       price,
       description,
-      category: { id: newCategory.id },
+      categoryId: newCategory.id,
     };
 
     if (!id) {
       await axios
-        .post(`http://54.199.68.197:8081/api/v1/products`, data)
+        .post(`${HOST}/products`, data)
         .then((res) => console.log(res))
         .catch((e) => console.log(e));
     } else {
       await axios
-        .put(`http://54.199.68.197:8081/api/v1/products/${id}`, data)
+        .put(`${HOST}/products/${id}`, data)
         .then((res) => console.log(res))
         .catch((e) => console.log(e));
     }
@@ -253,16 +255,16 @@ const ModalEditProduct = () => {
           product?.description,
           product?.category.id,
         ]) !==
-        JSON.stringify([
-          id,
-          name,
-          image,
-          category.name,
-          price,
-          quantity,
-          description,
-          category.id,
-        ])) ||
+          JSON.stringify([
+            id,
+            name,
+            image,
+            category.name,
+            price,
+            quantity,
+            description,
+            category.id,
+          ])) ||
       (data.length === 0 &&
         (name || image || category.name || price || quantity || description))
     ) {
@@ -292,9 +294,9 @@ const ModalEditProduct = () => {
       primaryAction={{
         content: "Lưu",
         onAction: handelSubmit,
-        loading: saving,
+        loading: saving || isLoading,
       }}
-      loading={isLoading}
+      loading={isFetching}
       secondaryActions={[
         {
           content: "Huỷ",
@@ -321,6 +323,7 @@ const ModalEditProduct = () => {
               filename={name}
               imageUrl={image}
               setImage={setImage}
+              setIsLoading={setIsLoading}
             />
           ) : (
             <DropZoneImage setImage={setImage} />
@@ -359,7 +362,7 @@ const ModalEditProduct = () => {
                         >
                           {category.id
                             ? listCategory.find((c) => c.id === category.id)
-                              ?.name
+                                ?.name
                             : "Lọc theo loại mặt hàng"}
                         </Button>
                       }
