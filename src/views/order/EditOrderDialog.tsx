@@ -360,6 +360,20 @@ const EditOrderDialog: React.FC<Props> = ({
                     error={showSupllierErr && "Vui lòng chọn nhà cung cấp"}
                   />
                 </div>
+                <div>
+                <Select
+                    label="Nhân viên thực hiện"
+                    options={employeeOptions}
+                    placeholder="Chọn nhân viên"
+                    onChange={(value) => {
+                      setOrderData({...orderData, employeeId: parseInt(value)})
+                      setShowEmployeeErr(false);
+                    }}
+                    value={orderData?.employeeId?.toString()}
+                    requiredIndicator
+                    error={showEmployeeErr && "Vui lòng chọn nhân viên"}
+                  />
+                </div>
                 <TextField
                   id="order--note"
                   label="Ghi chú"
@@ -406,18 +420,6 @@ const EditOrderDialog: React.FC<Props> = ({
                   suffix="vnđ"
                 />
               </div>  
-              <Select
-                label="Nhân viên thực hiện"
-                options={employeeOptions}
-                placeholder="Chọn nhân viên"
-                onChange={(value) => {
-                  setOrderData({...orderData, employeeId: parseInt(value)})
-                  setShowEmployeeErr(false);
-                }}
-                value={orderData?.employeeId?.toString()}
-                requiredIndicator
-                error={showEmployeeErr && "Vui lòng chọn nhân viên"}
-              />
             </Grid.Cell>
             <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
               <InlineStack gap="400">
