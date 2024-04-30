@@ -131,9 +131,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
               label="Số Lượng"
               type="number"
               min={1}
-              value={
-                orderProduct?.quantity ? orderProduct?.quantity?.toString() : ""
-              }
+              value={orderProduct?.quantity?.toString() ?? 1}
               onChange={(value) => 
                 setOrderProduct({
                   ...orderProduct,

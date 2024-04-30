@@ -18,8 +18,8 @@ import { DeleteIcon, EditIcon } from "@shopify/polaris-icons";
 import moment from "moment";
 import axios from "axios";
 import AddOrderProductDialog from "./AddOrderProductDialog";
-import { Order, OrderProduct, Supplier } from "../../interface";
-import { ORDER_API, SUPPLIER_API } from "../../constants/api";
+import { Employee, Order, OrderProduct, Supplier } from "../../interface";
+import { EMPLOYEE_API, ORDER_API, SUPPLIER_API } from "../../constants/api";
 
 interface Props {
   id: string;
@@ -30,6 +30,11 @@ interface Props {
   setSelectedRows: Function;
 }
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 const EditOrderDialog: React.FC<Props> = ({
   open,
   setOpen,
@@ -38,6 +43,7 @@ const EditOrderDialog: React.FC<Props> = ({
   setSelectedRows,
 }) => {
   const [listSupplier, setListSupplier] = useState<Supplier[]>([]);
+  const [employeeOptions, setEmployeeOptions] = useState<Option[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const [addProductDialog, setAddProductDialog] = useState<boolean>(false);
@@ -51,7 +57,7 @@ const EditOrderDialog: React.FC<Props> = ({
       tax: 0,
       note: "",
       code: "",
-      employeeId: 1,
+      employeeId: "",
       payment: 0
     }
   );
@@ -62,7 +68,6 @@ const EditOrderDialog: React.FC<Props> = ({
   const [showErr, setShowErr] = useState<boolean>(false);
   const [showCodeErr, setShowCodeErr] = useState<boolean>(false);
   const [showSupllierErr, setShowSupplierErr] = useState<boolean>(false);
-
   const [codeErrMessage, setCodeErrMessage] = useState<string>("");
 
   useEffect(() => {
@@ -78,7 +83,21 @@ const EditOrderDialog: React.FC<Props> = ({
       );
       setListSupplier(response?.data?.data?.data);
     };
+
+    const fetchEmployeeData = async () => {
+      const response = await axios.get(EMPLOYEE_API);
+      const data = response?.data?.data;
+      
+      setEmployeeOptions(data?.map((employee: Employee) => {
+        return {
+          label: employee.name,
+          value: employee.id.toString()
+        }
+      }));
+    }
+
     fetchSupplierData();
+    fetchEmployeeData();
   }, []);
 
   useEffect(() => {
@@ -351,7 +370,7 @@ const EditOrderDialog: React.FC<Props> = ({
               </FormLayout>
             </Grid.Cell>
             <Grid.Cell columnSpan={{ xs: 6, md: 2, lg: 4 }}>
-              <div style={{ marginBottom: "15px" }}>
+              <div style={{ marginBottom: "18px" }}>
                 <TextField
                   id="order--total--product--price"
                   label="Tổng tiền hàng hoá"
@@ -366,17 +385,29 @@ const EditOrderDialog: React.FC<Props> = ({
                   id="order--tax"
                   label="Giá trị thuế"
                   value={orderData?.tax.toString()}
+                  onChange={(value) => setOrderData({...orderData, tax: parseInt(value)})}
+                  autoComplete=""
+                  suffix="vnđ"
+                  type="number"
+                  min={0}
+                />
+              </div>
+              <div style={{ marginBottom: "15px" }}>
+                <TextField
+                  id="order--total"
+                  label="Tổng hóa đơn"
+                  value={orderData?.payment.toString()}
+                  disabled
                   autoComplete=""
                   suffix="vnđ"
                 />
-              </div>
-              <TextField
-                id="order--total"
-                label="Tổng hóa đơn"
-                value={orderData?.payment.toString()}
-                disabled
-                autoComplete=""
-                suffix="vnđ"
+              </div>  
+              <Select
+                label="Nhân viên thực hiện"
+                options={employeeOptions}
+                onChange={(value) => setOrderData({...orderData, employeeId: parseInt(value)})}
+                value={orderData?.employeeId?.toString()}
+                requiredIndicator
               />
             </Grid.Cell>
             <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
