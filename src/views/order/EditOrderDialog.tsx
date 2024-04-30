@@ -68,6 +68,7 @@ const EditOrderDialog: React.FC<Props> = ({
   const [showErr, setShowErr] = useState<boolean>(false);
   const [showCodeErr, setShowCodeErr] = useState<boolean>(false);
   const [showSupllierErr, setShowSupplierErr] = useState<boolean>(false);
+  const [showEmployeeErr, setShowEmployeeErr] = useState<boolean>(false);
   const [codeErrMessage, setCodeErrMessage] = useState<string>("");
 
   useEffect(() => {
@@ -105,8 +106,7 @@ const EditOrderDialog: React.FC<Props> = ({
     setTotalPrice(productsPrice);
     setOrderData({
       ...orderData,
-      tax: 0.01 * productsPrice,
-      payment: productsPrice + 0.01 * productsPrice
+      payment: productsPrice + orderData?.tax
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderData.importOrderProducts]);
@@ -223,6 +223,11 @@ const EditOrderDialog: React.FC<Props> = ({
       check = false;
     }
 
+    if (!orderData?.employeeId) {
+      setShowEmployeeErr(true);
+      check = false;
+    }
+
     if (!orderData?.supplier?.id) {
       setShowSupplierErr(true);
       check = false;
@@ -245,7 +250,6 @@ const EditOrderDialog: React.FC<Props> = ({
       ...orderData,
       supplierId: orderData?.supplier?.id,
       importOrderProducts: newData,
-      employeeId: 1
     }
 
     if (order?.id) {
@@ -405,9 +409,11 @@ const EditOrderDialog: React.FC<Props> = ({
               <Select
                 label="Nhân viên thực hiện"
                 options={employeeOptions}
+                placeholder="Chọn nhân viên"
                 onChange={(value) => setOrderData({...orderData, employeeId: parseInt(value)})}
                 value={orderData?.employeeId?.toString()}
                 requiredIndicator
+                error={showEmployeeErr && "Vui lòng chọn nhân viên"}
               />
             </Grid.Cell>
             <Grid.Cell columnSpan={{ xs: 6, md: 6, lg: 12 }}>
