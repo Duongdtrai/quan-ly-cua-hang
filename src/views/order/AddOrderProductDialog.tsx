@@ -144,7 +144,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
               id="price--input"
               label="Giá nhập"
               type="number"
-              value={orderProduct?.importPrice?.toString() ?? 0}
+              value={orderProduct?.importPrice?.toString() ?? 1}
               onChange={(value) => 
                 setOrderProduct({
                   ...orderProduct,
@@ -152,7 +152,7 @@ const AddOrderProductDialog: React.FC<AddOrderProductDialogProps> = ({
               })}
               autoComplete="off"
               suffix="vnđ"
-              min={0}
+              min={1}
             />
           </FormLayout>
         </Modal.Section>
