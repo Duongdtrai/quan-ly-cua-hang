@@ -53,3 +53,15 @@ export interface OrderProduct {
   importPrice: number;
   product: Product;
 }
+
+export interface Employee {
+  id: number,
+  name: string,
+  username: string,
+  password: string,
+  phoneNumber: string,
+  dateOfBirth: string,
+  address: string,
+  homeTown: string,
+  gender: string
+}
