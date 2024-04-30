@@ -109,7 +109,7 @@ const EditOrderDialog: React.FC<Props> = ({
       payment: productsPrice + orderData?.tax
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderData.importOrderProducts]);
+  }, [orderData.importOrderProducts, orderData.tax]);
 
   const convertDataToRow = (tableData: Order | undefined): TableData[][] => {
     if (!tableData || !tableData.importOrderProducts) return [];
@@ -389,7 +389,7 @@ const EditOrderDialog: React.FC<Props> = ({
                   id="order--tax"
                   label="Giá trị thuế"
                   value={orderData?.tax.toString()}
-                  onChange={(value) => setOrderData({...orderData, tax: parseInt(value)})}
+                  onChange={(value) => setOrderData({...orderData, tax: value ? parseInt(value) : 0})}
                   autoComplete=""
                   suffix="vnđ"
                   type="number"
