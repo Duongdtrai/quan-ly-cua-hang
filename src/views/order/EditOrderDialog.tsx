@@ -410,7 +410,10 @@ const EditOrderDialog: React.FC<Props> = ({
                 label="Nhân viên thực hiện"
                 options={employeeOptions}
                 placeholder="Chọn nhân viên"
-                onChange={(value) => setOrderData({...orderData, employeeId: parseInt(value)})}
+                onChange={(value) => {
+                  setOrderData({...orderData, employeeId: parseInt(value)})
+                  setShowEmployeeErr(false);
+                }}
                 value={orderData?.employeeId?.toString()}
                 requiredIndicator
                 error={showEmployeeErr && "Vui lòng chọn nhân viên"}
