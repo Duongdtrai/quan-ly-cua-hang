@@ -138,7 +138,7 @@ const ModalEditProduct = () => {
     } else {
       setErrorNameText("");
     }
-    if (!price && Number(price) !== 0) {
+    if (!price || Number(price) === 0) {
       setErrorPriceText(EErrorText.Empty("Giá mặt hàng"));
       isError = true;
     } else if (Number(price) < 0) {
@@ -147,7 +147,7 @@ const ModalEditProduct = () => {
     } else {
       setErrorPriceText("");
     }
-    if (!quantity && Number(quantity) !== 0) {
+    if (!quantity || Number(quantity) === 0) {
       setErrorQuantityText(EErrorText.Empty("Số lượng"));
       isError = true;
     } else if (Number(quantity) < 0) {
