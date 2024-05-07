@@ -138,16 +138,16 @@ const ModalEditProduct = () => {
     } else {
       setErrorNameText("");
     }
-    if (!price || Number(price) === 0) {
+    if (!price && Number(price) === 0) {
       setErrorPriceText(EErrorText.Empty("Giá mặt hàng"));
       isError = true;
-    } else if (Number(price) < 0) {
+    } else if (Number(price) <= 0) {
       setErrorPriceText(EErrorText.NumberLessZezo("Giá mặt hàng"));
       isError = true;
     } else {
       setErrorPriceText("");
     }
-    if (!quantity || Number(quantity) === 0) {
+    if (!quantity && Number(quantity) === 0) {
       setErrorQuantityText(EErrorText.Empty("Số lượng"));
       isError = true;
     } else if (Number(quantity) < 0) {
